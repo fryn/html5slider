@@ -1,0 +1,6 @@
+- find better way to prevent focus ring problems [accessibility]
+- find better way to set width on-the-fly safely
+- update when type attribute of input elements are modified
+- integrate -moz-grab/-moz-grabbing cursor
+- respond to clicking on right end when nub is in left half
+- center nub at click location
