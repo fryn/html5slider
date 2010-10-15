@@ -32,19 +32,24 @@ if (!('boxShadow' in test.style) || !('MozAppearance' in test.style))
   return;
 
 // create sliders initially
-document.addEventListener('DOMContentLoaded', function() {
-  Array.forEach(document.querySelectorAll('input[type=range]'), create);
-}, false);
+if (document.readyState == 'loading')
+  document.addEventListener('DOMContentLoaded', createAll, false);
+else
+  createAll();
 
 // create sliders on-the-fly
 document.addEventListener('DOMNodeInserted', function(e) {
   if (e.target.localName != 'input')
     return;
   setTimeout(function(node) {
-    if (node.getAttribute('type') == 'range')
+    if (node.getAttribute('type') == 'range' && !node.resetWidth)
       create(node);
   }, 0, e.target);
 }, false);
+
+function createAll() {
+  Array.forEach(document.querySelectorAll('input[type=range]'), create);
+}
 
 function create(slider) {
 
@@ -99,11 +104,13 @@ function create(slider) {
     range = max - min;
     // draw only nub if min equals max (WebKit does otherwise)
     multiplier = range ? origWidth / range : 1;
-    draw.call(this, 1);
+    draw.call(this, true);
   }
 
   // recalculates value property
   function calc() {
+    if (!isValueModified && !areAttrsModified)
+      value = this.getAttribute('value');
     if (!isAttrNum(value))
       value = mid;
     // snap to step intervals (WebKit sometimes does not - bug?)
@@ -118,7 +125,7 @@ function create(slider) {
 
   // renders slider using CSS width, margin, and box-shadow
   function draw(force) {
-    calc();
+    calc.call(this);
     // prevent unnecessary redrawing
     if (!force && value == prevValue)
       return;
@@ -141,14 +148,14 @@ function create(slider) {
   }
 
   var origWidth, value, min, max, step, mid, range, multiplier, dev;
-  var isValueModified, prevValue, tempValue, prevX;
+  var isValueModified, areAttrsModified, prevValue, tempValue, prevX;
 
-  // since changes before this are unknown, assume this is initial value
+  // since any previous changes are unknown, assume element was just created
   if (slider.value !== '')
     value = slider.value;
   // implement value property properly
   slider.__defineGetter__('value', function() {
-    calc();
+    calc.call(this);
     return '' + value;
   });
   slider.__defineSetter__('value', function(val) {
@@ -159,6 +166,8 @@ function create(slider) {
 
   // sync properties with attributes
   ['min', 'max', 'step'].forEach(function(prop) {
+    if (slider.hasAttribute(prop))
+      areAttrsModified = true;
     slider.__defineGetter__(prop, function() {
       return this.hasAttribute(prop) ? this.getAttribute(prop) : '';
     });
@@ -185,8 +194,10 @@ function create(slider) {
       value = e.newValue;
       draw.call(this);
     }
-    else if (~['min', 'max', 'step'].indexOf(e.attrName))
+    else if (~['min', 'max', 'step'].indexOf(e.attrName)) {
       reset.call(this);
+      areAttrsModified = true;
+    }
   }, false);
 
   slider.addEventListener('mousedown', onDragStart, false);
