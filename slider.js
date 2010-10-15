@@ -136,10 +136,7 @@ function create(slider) {
     this.style.setProperty('width', width + 2 * dev + 'px', 'important');
     this.style.setProperty('margin-left', margins[0] + 'px', 'important');
     this.style.setProperty('margin-right', margins[1] + 'px', 'important');
-    var shadow = [], style = 'px 0 0 #444';
-    // experimental thin style
-    if (~this.className.split(' ').indexOf('x-thin'))
-      style = 'px 2px 0 -6px #555';
+    var shadow = [], style = 'px 0 0 #444'; // _px 2px 0 -6px works on OS X...
     var end = (max - value) * multiplier;
     for (var i = (min - value) * multiplier; i < end; i += 3)
       shadow.push(i + style);
