@@ -42,7 +42,7 @@ document.addEventListener('DOMNodeInserted', function(e) {
   if (e.target.localName != 'input')
     return;
   setTimeout(function(node) {
-    if (node.getAttribute('type') == 'range' && !node.resetWidth)
+    if (node.getAttribute('type') == 'range' && !node.__setWidth__)
       create(node);
   }, 0, e.target);
 }, false);
@@ -56,9 +56,9 @@ function create(slider) {
   function onDragStart(e) {
     var x = e.clientX - this.offsetLeft;
     // distance between click and center of nub
-    var diff = x - origWidth / 2 - dev;
+    var diff = x - width / 2 - dev;
     // check if click was within control bounds
-    if (!(value < mid ? x > 2 * dev - 5 : x < origWidth + 10))
+    if (!(value < mid ? x > 2 * dev - 5 : x < width + 10))
       return;
     // if click was not on nub, move nub to click location
     if (diff < -3 || diff > 7)
@@ -85,17 +85,17 @@ function create(slider) {
     return !isNaN(value) && +value == parseFloat(value, 10);
   }
 
-  function resetWidth(width) {
+  function setWidth(val) {
     if (this != slider)
       throw new TypeError('Illegal invocation');
-    if (isAttrNum(width)) {
-      origWidth = +width;
-      reset.call(this);
+    if (isAttrNum(val)) {
+      width = +val;
+      update.call(this);
     }
   }
 
   // validates min, max, and step attributes/properties and redraws
-  function reset() {
+  function update() {
     min = isAttrNum(this.min) ? +this.min : 0;
     max = isAttrNum(this.max) ? +this.max : 100;
     step = isAttrNum(this.step) ? +this.step : 1;
@@ -103,13 +103,13 @@ function create(slider) {
     mid = (min + max) / 2;
     range = max - min;
     // draw only nub if min equals max (WebKit does otherwise)
-    multiplier = range ? origWidth / range : 1;
+    multiplier = range ? width / range : 1;
     draw.call(this, true);
   }
 
   // recalculates value property
   function calc() {
-    if (!isValueModified && !areAttrsModified)
+    if (!isValueSet && !areAttrsSet)
       value = this.getAttribute('value');
     if (!isAttrNum(value))
       value = mid;
@@ -133,7 +133,7 @@ function create(slider) {
     // render it!
     var margins = [5, 5];
     margins[+(value > mid)] -= dev * 2;
-    this.style.setProperty('width', origWidth + 2 * dev + 'px', 'important');
+    this.style.setProperty('width', width + 2 * dev + 'px', 'important');
     this.style.setProperty('margin-left', margins[0] + 'px', 'important');
     this.style.setProperty('margin-right', margins[1] + 'px', 'important');
     var shadow = [], style = 'px 0 0 #444';
@@ -147,8 +147,8 @@ function create(slider) {
     this.style.setProperty('box-shadow', shadow.join(), 'important');
   }
 
-  var origWidth, value, min, max, step, mid, range, multiplier, dev;
-  var isValueModified, areAttrsModified, prevValue, tempValue, prevX;
+  var width, value, min, max, step, mid, range, multiplier, dev;
+  var isValueSet, areAttrsSet, prevValue, tempValue, prevX;
 
   // since any previous changes are unknown, assume element was just created
   if (slider.value !== '')
@@ -160,14 +160,14 @@ function create(slider) {
   });
   slider.__defineSetter__('value', function(val) {
     value = '' + val;
-    isValueModified = true;
+    isValueSet = true;
     draw.call(this);
   });
 
   // sync properties with attributes
   ['min', 'max', 'step'].forEach(function(prop) {
     if (slider.hasAttribute(prop))
-      areAttrsModified = true;
+      areAttrsSet = true;
     slider.__defineGetter__(prop, function() {
       return this.hasAttribute(prop) ? this.getAttribute(prop) : '';
     });
@@ -180,23 +180,23 @@ function create(slider) {
   slider.style.setProperty('-moz-appearance', 'radio', 'important');
   slider.style.setProperty('cursor', 'default', 'important');
 
-  // expose public method to reset width on-the-fly safely
-  slider.resetWidth = function() {
-    resetWidth.apply(this, arguments);
+  // expose public method to set width on-the-fly
+  slider.__setWidth__ = function() {
+    setWidth.apply(this, arguments);
   };
 
   // initialize slider
-  slider.resetWidth(parseFloat(getComputedStyle(slider, 0).width));
+  slider.__setWidth__(parseFloat(getComputedStyle(slider, 0).width));
 
   slider.addEventListener('DOMAttrModified', function(e) {
     // note that value attribute only sets initial value
-    if (e.attrName == 'value' && !isValueModified) {
+    if (e.attrName == 'value' && !isValueSet) {
       value = e.newValue;
       draw.call(this);
     }
     else if (~['min', 'max', 'step'].indexOf(e.attrName)) {
-      reset.call(this);
-      areAttrsModified = true;
+      update.call(this);
+      areAttrsSet = true;
     }
   }, false);
 

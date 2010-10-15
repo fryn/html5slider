@@ -5,6 +5,7 @@
 <title>HTML5 input[type=range] support for Firefox 4</title>
 <style>
 body {
+  font: 12px Tahoma;
   text-align: center;
   overflow: hidden;
 }
@@ -21,7 +22,7 @@ onload = function() {
   var valueTwo;
   var boardOne = document.getElementById('one');
   var boardTwo = document.getElementById('two');
-  // use timer just for this quick demo
+  // XXX use timer just for this quick demo
   setInterval(function() {
     if (inputOne.value != valueOne)
       boardOne.textContent = valueOne = inputOne.value;
@@ -35,7 +36,7 @@ onload = function() {
 <input type="range" />
 <div id="one">&nbsp;</div>
 <br />
-<input type="range" value="-60" min="-80" max="100" step="30" class="x-thin" />
+<input type="range" value="-20" min="-80" max="95" step="25" class="x-thin" />
 <div id="two">&nbsp;</div>
 </body>
 </html>
