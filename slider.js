@@ -122,7 +122,7 @@ function create(slider) {
     if (!force && value == prevValue)
       return;
     prevValue = value;
-    // style the control
+    // render it!
     var mid = (this.min - -this.max) / 2;
     var range = this.max - this.min;
     var multiplier = origWidth / range;
@@ -161,7 +161,6 @@ function create(slider) {
     });
     slider.__defineSetter__(attr, function(val) {
       this.setAttribute(attr, val);
-      return val;
     });
   });
 
