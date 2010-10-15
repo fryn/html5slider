@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>HTML5 input[type=range] support for Firefox 4</title>
+<style>
+body {
+  text-align: center;
+  overflow: hidden;
+}
+input[type=range]:first-of-type {
+  width: 200px;
+}
+</style>
+<script src="slider.js"></script>
+<script type="text/javascript;version=1.8">
+onload = function() {
+  var one = document.querySelector('input');
+  (one.onmousedown = one.onmousemove = function() {
+    document.getElementById('one').textContent = one.value;
+  })();
+  var two = document.querySelector('input ~ input');
+  (two.onmousedown = two.onmousemove = function() {
+    document.getElementById('two').textContent = two.value;
+  })();
+};
+</script>
+</head>
+<body>
+<input type="range" />
+<div id="one"></div>
+<br />
+<input type="range" value="-60" min="-80" max="100" step="30" class="x-thin" />
+<div id="two"></div>
+</body>
+</html>
