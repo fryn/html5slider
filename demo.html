@@ -14,29 +14,29 @@ input[type=range]:first-of-type {
 }
 </style>
 <script src="slider.js"></script>
-<script type="text/javascript;version=1.8">
+<script type="text/javascript">
 onload = function() {
-  var inputOne = document.getElementsByTagName('input')[0];
-  var inputTwo = document.getElementsByTagName('input')[1];
+  var inputOne = document.getElementById('one');
+  var inputTwo = document.getElementById('two');
   var valueOne;
   var valueTwo;
-  var boardOne = document.getElementById('one');
-  var boardTwo = document.getElementById('two');
+  var boardOne = document.getElementById('uno');
+  var boardTwo = document.getElementById('dos');
   // XXX use timer just for this quick demo
   setInterval(function() {
     if (inputOne.value != valueOne)
-      boardOne.textContent = valueOne = inputOne.value;
+      boardOne.innerHTML = valueOne = inputOne.value;
     if (inputTwo.value != valueTwo)
-      boardTwo.textContent = valueTwo = inputTwo.value;
+      boardTwo.innerHTML = valueTwo = inputTwo.value;
   }, 50);
 };
 </script>
 </head>
 <body>
-<input type="range" />
-<div id="one">&nbsp;</div>
+<input type="range" id="one" />
+<div id="uno">&nbsp;</div>
 <br />
-<input type="range" value="-20" min="-80" max="115" step="25" class="x-thin" />
-<div id="two">&nbsp;</div>
+<input type="range" value="-20" min="-80" max="115" step="25" id="two" />
+<div id="dos">&nbsp;</div>
 </body>
 </html>
