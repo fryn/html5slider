@@ -124,9 +124,11 @@ function create(slider) {
       return;
     prevValue = value;
     // render it!
-    this.style.width = origWidth + 2 * dev + 'px';
-    this.style.marginLeft = (value < mid ? -dev * 2 : 0) + 5 + 'px';
-    this.style.marginRight = (value > mid ? -dev * 2 : 0) + 5 + 'px';
+    var margins = [5, 5];
+    margins[+(value > mid)] -= dev * 2;
+    this.style.setProperty('width', origWidth + 2 * dev + 'px', 'important');
+    this.style.setProperty('margin-left', margins[0] + 'px', 'important');
+    this.style.setProperty('margin-right', margins[1] + 'px', 'important');
     var shadow = [], style = 'px 0 0 #444';
     // experimental thin style
     if (~this.className.split(' ').indexOf('x-thin'))
@@ -135,7 +137,7 @@ function create(slider) {
     for (var i = (min - value) * multiplier; i < end; i += 3)
       shadow.push(i + style);
     shadow.push(end + style);
-    this.style.boxShadow = shadow.join();
+    this.style.setProperty('box-shadow', shadow.join(), 'important');
   }
 
   var origWidth, value, min, max, step, mid, range, multiplier, dev;
@@ -166,8 +168,8 @@ function create(slider) {
   });
 
   // create slider affordance
-  slider.style.MozAppearance = 'radio';
-  slider.style.cursor = 'default';
+  slider.style.setProperty('-moz-appearance', 'radio', 'important');
+  slider.style.setProperty('cursor', 'default', 'important');
 
   // expose public method to reset width on-the-fly safely
   slider.resetWidth = function() {
