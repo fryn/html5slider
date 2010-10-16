@@ -28,10 +28,9 @@ test.type = 'range';
 if (test.value == 50)
   return;
 // test for required CSS property support
-if (!('boxShadow' in test.style) || !('MozAppearance' in test.style))
+if (!('MozAppearance' in test.style))
   return;
 
-// create sliders initially
 if (document.readyState == 'loading')
   document.addEventListener('DOMContentLoaded', createAll, false);
 else
@@ -48,20 +47,28 @@ document.addEventListener('DOMNodeInserted', function(e) {
 }, false);
 
 function createAll() {
+  // create slider affordance
+  var thumb = document.createElement('hr');
+  thumb.id = '__scale-horizontal__';
+  thumb.style.setProperty('-moz-appearance', 'scale-horizontal', 'important');
+  thumb.style.setProperty('position', 'fixed', 'important');
+  thumb.style.setProperty('top', '-999999px', 'important');
+  document.body.appendChild(thumb);
+  // create initial sliders
   Array.forEach(document.querySelectorAll('input[type=range]'), create);
 }
 
 function create(slider) {
 
   function onDragStart(e) {
-    var x = e.clientX - this.offsetLeft;
-    // distance between click and center of nub
-    var diff = x - width / 2 - dev;
-    // check if click was within control bounds
-    if (!(value < mid ? x > 2 * dev - 5 : x < width + 10))
+    if (!range)
       return;
+    var width = parseFloat(getComputedStyle(this, 0).width);
+    var multiplier = (width - 22) / range;
+    // distance between click and center of nub
+    var diff = e.clientX - this.offsetLeft - 11 - (value - min) * multiplier;
     // if click was not on nub, move nub to click location
-    if (diff < -3 || diff > 7)
+    if (Math.abs(diff) > 9)
       this.value -= -diff / multiplier;
     tempValue = value;
     prevX = e.clientX;
@@ -70,7 +77,8 @@ function create(slider) {
   }
 
   function onDrag(e) {
-    tempValue += (e.clientX - prevX) / multiplier;
+    var width = parseFloat(getComputedStyle(slider, 0).width);
+    tempValue += (e.clientX - prevX) * range / (width - 22);
     prevX = e.clientX;
     slider.value = tempValue;
   }
@@ -85,25 +93,12 @@ function create(slider) {
     return !isNaN(value) && +value == parseFloat(value, 10);
   }
 
-  function setWidth(val) {
-    if (this != slider)
-      throw new TypeError('Illegal invocation');
-    if (isAttrNum(val)) {
-      width = +val;
-      update.call(this);
-    }
-  }
-
   // validates min, max, and step attributes/properties and redraws
   function update() {
     min = isAttrNum(this.min) ? +this.min : 0;
     max = isAttrNum(this.max) ? +this.max : 100;
     step = isAttrNum(this.step) ? +this.step : 1;
-    // cache common computations
-    mid = (min + max) / 2;
     range = max - min;
-    // draw only nub if min equals max (WebKit does otherwise)
-    multiplier = range ? width / range : 1;
     draw.call(this, true);
   }
 
@@ -112,7 +107,7 @@ function create(slider) {
     if (!isValueSet && !areAttrsSet)
       value = this.getAttribute('value');
     if (!isAttrNum(value))
-      value = mid;
+      value = (min + max) / 2;;
     // snap to step intervals (WebKit sometimes does not - bug?)
     value = Math.round((value - min) / step) * step + min;
     // clamp to [min, max]
@@ -120,7 +115,6 @@ function create(slider) {
       value = min;
     else if (value > max)
       value = min + ~~(range / step) * step;
-    dev = Math.abs(value - mid) * multiplier;
   }
 
   // renders slider using CSS width, margin, and box-shadow
@@ -131,21 +125,15 @@ function create(slider) {
       return;
     prevValue = value;
     // render it!
-    var margins = [5, 5];
-    margins[+(value > mid)] -= dev * 2;
-    this.style.setProperty('width', width + 2 * dev + 'px', 'important');
-    this.style.setProperty('margin-left', margins[0] + 'px', 'important');
-    this.style.setProperty('margin-right', margins[1] + 'px', 'important');
-    var shadow = [], style = 'px 0 0 #444'; // _px 2px 0 -6px works on OS X...
-    var end = (max - value) * multiplier;
-    for (var i = (min - value) * multiplier; i < end; i += 3)
-      shadow.push(i + style);
-    shadow.push(end + style);
-    this.style.setProperty('box-shadow', shadow.join(), 'important');
+    var position = range ? (value - min) / range * 100 : 0;
+    this.style.background =
+      '-moz-element(#__scale-horizontal__) ' + position + '% no-repeat, ' +
+      '-moz-linear-gradient(top, transparent 9px, #666 9px, #bbb 14px, ' +
+                            'transparent 14px,transparent) no-repeat';
   }
 
-  var width, value, min, max, step, mid, range, multiplier, dev;
-  var isValueSet, areAttrsSet, prevValue, tempValue, prevX;
+  var value, min, max, step;
+  var isValueSet, areAttrsSet, range, prevValue, tempValue, prevX;
 
   // since any previous changes are unknown, assume element was just created
   if (slider.value !== '')
@@ -173,17 +161,22 @@ function create(slider) {
     });
   });
 
-  // create slider affordance
-  slider.style.setProperty('-moz-appearance', 'radio', 'important');
-  slider.style.setProperty('cursor', 'default', 'important');
-
-  // expose public method to set width on-the-fly
-  slider.__setWidth__ = function() {
-    setWidth.apply(this, arguments);
-  };
-
   // initialize slider
-  slider.__setWidth__(parseFloat(getComputedStyle(slider, 0).width));
+  update.call(slider);
+
+  var styles = {
+    'color': 'transparent',
+    'background-size': 'contain',
+    'min-width': '22px',
+    'min-height': '22px',
+    'max-height': '22px',
+    padding: 0,
+    border: 0,
+    cursor: 'default',
+    '-moz-user-select': 'none'
+  };
+  for (var prop in styles)
+    slider.style.setProperty(prop, styles[prop], 'important');
 
   slider.addEventListener('DOMAttrModified', function(e) {
     // note that value attribute only sets initial value
@@ -198,11 +191,6 @@ function create(slider) {
   }, false);
 
   slider.addEventListener('mousedown', onDragStart, false);
-
-  // stop the focus ring from distorting the box shadow
-  slider.addEventListener('focus', function() {
-    this.blur();
-  }, false);
 
 }
 
