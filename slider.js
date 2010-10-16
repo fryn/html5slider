@@ -34,9 +34,9 @@ if (!('MozAppearance' in test.style))
 var isMac = ~navigator.oscpu.indexOf(' OS X ');
 
 if (document.readyState == 'loading')
-  document.addEventListener('DOMContentLoaded', createAll, false);
+  document.addEventListener('DOMContentLoaded', initialize, false);
 else
-  createAll();
+  initialize();
 
 // create sliders on-the-fly
 document.addEventListener('DOMNodeInserted', function(e) {
@@ -48,7 +48,8 @@ document.addEventListener('DOMNodeInserted', function(e) {
   }, 0, e.target);
 }, false);
 
-function themeNatively() {
+function initialize() {
+  // create slider affordance
   var appearance = isMac ? 'scale-horizontal' : 'scalethumb-horizontal';
   var thumb = document.createElement('hr');
   thumb.id = '__sliderthumb__';
@@ -56,11 +57,6 @@ function themeNatively() {
   thumb.style.setProperty('position', 'fixed', 'important');
   thumb.style.setProperty('top', '-999999px', 'important');
   document.body.appendChild(thumb);
-}
-
-function createAll() {
-  // create slider affordance
-  themeNatively();
   // create initial sliders
   Array.forEach(document.querySelectorAll('input[type=range]'), create);
 }
