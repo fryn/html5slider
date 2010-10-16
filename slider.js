@@ -49,10 +49,9 @@ document.addEventListener('DOMNodeInserted', function(e) {
 }, false);
 
 function themeNatively() {
-  // create slider affordance
   var appearance = isMac ? 'scale-horizontal' : 'scalethumb-horizontal';
   var thumb = document.createElement('hr');
-  thumb.id = '__scale-horizontal__';
+  thumb.id = '__sliderthumb__';
   thumb.style.setProperty('-moz-appearance', appearance, 'important');
   thumb.style.setProperty('position', 'fixed', 'important');
   thumb.style.setProperty('top', '-999999px', 'important');
@@ -60,6 +59,7 @@ function themeNatively() {
 }
 
 function createAll() {
+  // create slider affordance
   themeNatively();
   // create initial sliders
   Array.forEach(document.querySelectorAll('input[type=range]'), create);
@@ -72,10 +72,10 @@ function create(slider) {
       return;
     var width = parseFloat(getComputedStyle(this, 0).width);
     var multiplier = (width - thumb.width) / range;
-    // distance between click and center of nub
+    // distance between click and center of thumb
     var dev = e.clientX - this.offsetLeft - thumb.width / 2 -
               (value - min) * multiplier;
-    // if click was not on nub, move nub to click location
+    // if click was not on thumb, move thumb to click location
     if (Math.abs(dev) > thumb.radius)
       this.value -= -dev / multiplier;
     tempValue = value;
@@ -103,22 +103,21 @@ function create(slider) {
 
   // validates min, max, and step attributes/properties and redraws
   function update() {
-    min = isAttrNum(this.min) ? +this.min : 0;
-    max = isAttrNum(this.max) ? +this.max : 100;
-    step = isAttrNum(this.step) ? +this.step : 1;
+    min = isAttrNum(slider.min) ? +slider.min : 0;
+    max = isAttrNum(slider.max) ? +slider.max : 100;
+    step = isAttrNum(slider.step) ? +slider.step : 1;
     range = max - min;
-    draw.call(this, true);
+    draw(true);
   }
 
   // recalculates value property
   function calc() {
     if (!isValueSet && !areAttrsSet)
-      value = this.getAttribute('value');
+      value = slider.getAttribute('value');
     if (!isAttrNum(value))
       value = (min + max) / 2;;
     // snap to step intervals (WebKit sometimes does not - bug?)
     value = Math.round((value - min) / step) * step + min;
-    // clamp to [min, max]
     if (value < min)
       value = min;
     else if (value > max)
@@ -126,18 +125,20 @@ function create(slider) {
   }
 
   // renders slider using CSS width, margin, and box-shadow
-  function draw(force) {
-    calc.call(this);
+  function draw(dirty) {
+    calc();
     // prevent unnecessary redrawing
-    if (!force && value == prevValue)
+    if (!dirty && value == prevValue)
       return;
     prevValue = value;
     // render it!
     var position = range ? (value - min) / range * 100 : 0;
-    this.style.background =
-      '-moz-element(#__scale-horizontal__) ' + position + '% no-repeat, ' +
-      '-moz-linear-gradient(top, transparent 9px, #666 9px, #bbb 14px, ' +
-                            'transparent 14px,transparent) no-repeat';
+    var top = thumb.height / 2 - 2;
+    slider.style.background =
+      '-moz-element(#__sliderthumb__) ' + position + '% no-repeat, ' +
+      '-moz-linear-gradient(top, transparent ' + top + 'px, #666 ' + top +
+        'px, #bbb ' + (top + 5) + 'px, transparent ' + (top + 5) +
+        'px, transparent) no-repeat'; // slider track
   }
 
   var value, min, max, step;
@@ -148,13 +149,13 @@ function create(slider) {
     value = slider.value;
   // implement value property properly
   slider.__defineGetter__('value', function() {
-    calc.call(this);
+    calc();
     return '' + value;
   });
   slider.__defineSetter__('value', function(val) {
     value = '' + val;
     isValueSet = true;
-    draw.call(this);
+    draw();
   });
 
   // sync properties with attributes
@@ -168,9 +169,6 @@ function create(slider) {
       val === null ? this.removeAttribute(prop) : this.setAttribute(prop, val);
     });
   });
-
-  // initialize slider
-  update.call(slider);
 
   var thumb = {
     radius: isMac ? 9 : 6,
@@ -191,14 +189,17 @@ function create(slider) {
   for (var prop in styles)
     slider.style.setProperty(prop, styles[prop], 'important');
 
+  // initialize slider
+  update();
+
   slider.addEventListener('DOMAttrModified', function(e) {
     // note that value attribute only sets initial value
     if (e.attrName == 'value' && !isValueSet) {
       value = e.newValue;
-      draw.call(this);
+      draw();
     }
     else if (~['min', 'max', 'step'].indexOf(e.attrName)) {
-      update.call(this);
+      update();
       areAttrsSet = true;
     }
   }, false);
