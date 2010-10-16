@@ -72,8 +72,10 @@ function create(slider) {
     var dev = e.clientX - this.offsetLeft - thumb.width / 2 -
               (value - min) * multiplier;
     // if click was not on thumb, move thumb to click location
-    if (Math.abs(dev) > thumb.radius)
+    if (Math.abs(dev) > thumb.radius) {
+      isChanged = true;
       this.value -= -dev / multiplier;
+    }
     tempValue = value;
     prevX = e.clientX;
     addEventListener('mousemove', onDrag, false);
@@ -84,6 +86,7 @@ function create(slider) {
     var width = parseFloat(getComputedStyle(slider, 0).width);
     tempValue += (e.clientX - prevX) * range / (width - thumb.width);
     prevX = e.clientX;
+    isChanged = true;
     slider.value = tempValue;
   }
 
@@ -123,6 +126,9 @@ function create(slider) {
   // renders slider using CSS background ;)
   function draw(dirty) {
     calc();
+    if (isChanged && value != prevValue)
+      slider.dispatchEvent(onChange);
+    isChanged = false;
     // prevent unnecessary redrawing
     if (!dirty && value == prevValue)
       return;
@@ -133,7 +139,7 @@ function create(slider) {
   }
 
   var value, min, max, step;
-  var isValueSet, areAttrsSet, range, prevValue, tempValue, prevX;
+  var isValueSet, areAttrsSet, isChanged, range, prevValue, rawValue, prevX;
 
   // since any previous changes are unknown, assume element was just created
   if (slider.value !== '')
@@ -148,6 +154,9 @@ function create(slider) {
     isValueSet = true;
     draw();
   });
+  // this is needed, b/c UI value changes will no longer trigger events
+  var onChange = document.createEvent('HTMLEvents');
+  onChange.initEvent('change', false, false);
 
   // sync properties with attributes
   ['min', 'max', 'step'].forEach(function(prop) {
