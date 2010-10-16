@@ -99,23 +99,24 @@ function create(slider) {
   var thumb = {
     radius: isMac ? 9 : 6,
     width: isMac ? 22 : 12,
-    height: isMac ? 22 : 20
+    height: isMac ? 16 : 20
   };
   var track = '-moz-linear-gradient(top, transparent ' +
     (isMac ?
-     '9px, #666 9px, #bbb 14px, transparent 14px' :
+     '6px, #666 6px, #bbb 11px, transparent 11px' :
      '9px, #999 9px, #bbb 10px, #fff 11px, transparent 11px') +
     ', transparent)';
   var styles = {
     // -moz-user-select: none breaks dragging outside window, so use this
-    'font-size': 0,
-    'color': 'transparent',
     'background-size': 'contain',
+    'color': 'transparent',
+    'font-size': 0,
     'min-width': thumb.width + 'px',
     'min-height': thumb.height + 'px',
     'max-height': thumb.height + 'px',
     padding: 0,
     border: 0,
+    'border-radius': '99px',
     cursor: 'default'
   };
   for (var prop in styles)
