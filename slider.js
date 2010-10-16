@@ -27,6 +27,7 @@ var test = document.createElement('input');
 test.type = 'range';
 if (test.value == 50)
   return;
+
 // test for required CSS property support
 if (!('MozAppearance' in test.style) || !('backgroundSize' in test.style))
   return;
@@ -37,16 +38,7 @@ if (document.readyState == 'loading')
   document.addEventListener('DOMContentLoaded', initialize, false);
 else
   initialize();
-
-// create sliders on-the-fly
-document.addEventListener('DOMNodeInserted', function(e) {
-  if (e.target.localName != 'input')
-    return;
-  setTimeout(function(node) {
-    if (node.getAttribute('type') == 'range' && !node.__setWidth__)
-      create(node);
-  }, 0, e.target);
-}, false);
+document.addEventListener('DOMNodeInserted', onTheFly, false);
 
 function initialize() {
   // create slider affordance
@@ -61,7 +53,90 @@ function initialize() {
   Array.forEach(document.querySelectorAll('input[type=range]'), create);
 }
 
+function onTheFly(e) {
+  if (e.target.localName != 'input')
+    return;
+  setTimeout(function(input) {
+    if (input.getAttribute('type') == 'range')
+      create(input);
+  }, 0, e.target);
+}
+
 function create(slider) {
+
+  var value, min, max, step;
+  var isValueSet, areAttrsSet, isChanged, range, prevValue, rawValue, prevX;
+
+  // since any previous changes are unknown, assume element was just created
+  if (slider.value !== '')
+    value = slider.value;
+  // implement value property properly
+  slider.__defineGetter__('value', function() {
+    return '' + value;
+  });
+  slider.__defineSetter__('value', function(val) {
+    value = '' + val;
+    isValueSet = true;
+    draw();
+  });
+  // UI value changes will no longer trigger events, so use this
+  var onChange = document.createEvent('HTMLEvents');
+  onChange.initEvent('change', false, false);
+
+  // sync properties with attributes
+  ['min', 'max', 'step'].forEach(function(prop) {
+    if (slider.hasAttribute(prop))
+      areAttrsSet = true;
+    slider.__defineGetter__(prop, function() {
+      return this.hasAttribute(prop) ? this.getAttribute(prop) : '';
+    });
+    slider.__defineSetter__(prop, function(val) {
+      val === null ? this.removeAttribute(prop) : this.setAttribute(prop, val);
+    });
+  });
+
+  // initialize slider
+  var thumb = {
+    radius: isMac ? 9 : 6,
+    width: isMac ? 22 : 12,
+    height: isMac ? 22 : 20
+  };
+  var track = '-moz-linear-gradient(top, transparent ' +
+    (isMac ?
+     '9px, #666 9px, #bbb 14px, transparent 14px' :
+     '9px, #999 9px, #bbb 10px, #fff 11px, transparent 11px') +
+    ', transparent)';
+  var styles = {
+    // -moz-user-select: none breaks dragging outside window, so use this
+    'font-size': 0,
+    'color': 'transparent',
+    'background-size': 'contain',
+    'min-width': thumb.width + 'px',
+    'min-height': thumb.height + 'px',
+    'max-height': thumb.height + 'px',
+    padding: 0,
+    border: 0,
+    cursor: 'default'
+  };
+  for (var prop in styles)
+    slider.style.setProperty(prop, styles[prop], 'important');
+  if (getComputedStyle(slider, 0).width == thumb.width + 'px')
+    slider.style.width = '129px'; // match WebKit just for giggles
+  update();
+
+  slider.addEventListener('DOMAttrModified', function(e) {
+    // note that value attribute only sets initial value
+    if (e.attrName == 'value' && !isValueSet) {
+      value = e.newValue;
+      draw();
+    }
+    else if (~['min', 'max', 'step'].indexOf(e.attrName)) {
+      update();
+      areAttrsSet = true;
+    }
+  }, false);
+
+  slider.addEventListener('mousedown', onDragStart, false);
 
   function onDragStart(e) {
     if (!range)
@@ -137,82 +212,6 @@ function create(slider) {
     slider.style.background =
       '-moz-element(#__sliderthumb__) ' + position + '% no-repeat, ' + track;
   }
-
-  var value, min, max, step;
-  var isValueSet, areAttrsSet, isChanged, range, prevValue, rawValue, prevX;
-
-  // since any previous changes are unknown, assume element was just created
-  if (slider.value !== '')
-    value = slider.value;
-  // implement value property properly
-  slider.__defineGetter__('value', function() {
-    // recalculate synchronously in case of min/max/step modifications
-    calc();
-    return '' + value;
-  });
-  slider.__defineSetter__('value', function(val) {
-    value = '' + val;
-    isValueSet = true;
-    draw();
-  });
-  // UI value changes will no longer trigger events, so use this
-  var onChange = document.createEvent('HTMLEvents');
-  onChange.initEvent('change', false, false);
-
-  // sync properties with attributes
-  ['min', 'max', 'step'].forEach(function(prop) {
-    if (slider.hasAttribute(prop))
-      areAttrsSet = true;
-    slider.__defineGetter__(prop, function() {
-      return this.hasAttribute(prop) ? this.getAttribute(prop) : '';
-    });
-    slider.__defineSetter__(prop, function(val) {
-      val === null ? this.removeAttribute(prop) : this.setAttribute(prop, val);
-    });
-  });
-
-  // initialize slider
-  var thumb = {
-    radius: isMac ? 9 : 6,
-    width: isMac ? 22 : 12,
-    height: isMac ? 22 : 20
-  };
-  var track = '-moz-linear-gradient(top, transparent ' +
-    (isMac ?
-     '9px, #666 9px, #bbb 14px, transparent 14px' :
-     '9px, #999 9px, #bbb 10px, #fff 11px, transparent 11px') +
-    ', transparent)';
-  var styles = {
-    // -moz-user-select: none breaks dragging outside window, so use this
-    'font-size': 0,
-    'color': 'transparent',
-    'background-size': 'contain',
-    'min-width': thumb.width + 'px',
-    'min-height': thumb.height + 'px',
-    'max-height': thumb.height + 'px',
-    padding: 0,
-    border: 0,
-    cursor: 'default'
-  };
-  for (var prop in styles)
-    slider.style.setProperty(prop, styles[prop], 'important');
-  if (getComputedStyle(slider, 0).width == thumb.width + 'px')
-    slider.style.width = '129px'; // match WebKit just for giggles
-  update();
-
-  slider.addEventListener('DOMAttrModified', function(e) {
-    // note that value attribute only sets initial value
-    if (e.attrName == 'value' && !isValueSet) {
-      value = e.newValue;
-      draw();
-    }
-    else if (~['min', 'max', 'step'].indexOf(e.attrName)) {
-      update();
-      areAttrsSet = true;
-    }
-  }, false);
-
-  slider.addEventListener('mousedown', onDragStart, false);
 
 }
 
