@@ -33,6 +33,27 @@ if (!document.mozSetImageElement || !('MozAppearance' in test.style))
   return;
 
 var isMac = ~navigator.oscpu.indexOf(' OS X ');
+var thumb = {
+  radius: isMac ? 9 : 6,
+  width: isMac ? 22 : 12,
+  height: isMac ? 16 : 20 // mac w/ focused thumb sprite: 22px
+};
+var track = '-moz-linear-gradient(top, transparent ' +
+  (isMac ?
+    '6px, #999 6px, #999 7px, #ccc 9px, #bbb 11px, #bbb 12px, transparent 12px'
+    : '9px, #999 9px, #bbb 10px, #fff 11px, transparent 11px') +
+  ', transparent)';
+var styles = {
+  'font-size': 0, // -moz-user-select: none breaks onmousemove, so use this
+  'color': 'transparent',
+  'min-width': thumb.width + 'px',
+  'min-height': thumb.height + 'px',
+  'max-height': thumb.height + 'px',
+  padding: 0,
+  border: 0,
+  'border-radius': 0,
+  cursor: 'default'
+};
 
 if (document.readyState == 'loading')
   document.addEventListener('DOMContentLoaded', initialize, false);
@@ -42,13 +63,13 @@ document.addEventListener('DOMNodeInserted', onTheFly, false);
 
 function initialize() {
   // create slider affordance
-  var thumb = document.createElement('hr');
-  var widget = isMac ? 'scale-horizontal' : 'scalethumb-horizontal';
-  thumb.style.setProperty('-moz-appearance', widget, 'important');
-  thumb.style.setProperty('position', 'fixed', 'important');
-  thumb.style.setProperty('top', '-999999px', 'important');
-  document.body.appendChild(thumb);
-  document.mozSetImageElement('__sliderthumb__', thumb);
+  var scale = document.body.appendChild(document.createElement('hr'));
+  style(scale, {
+    '-moz-appearance': isMac ? 'scale-horizontal' : 'scalethumb-horizontal',
+    position: 'fixed',
+    top: '-999999px'
+  });
+  document.mozSetImageElement('__sliderthumb__', scale);
   // create initial sliders
   Array.forEach(document.querySelectorAll('input[type=range]'), create);
 }
@@ -64,8 +85,8 @@ function onTheFly(e) {
 
 function create(slider) {
 
-  var value, min, max, step;
-  var isValueSet, areAttrsSet, isChanged, range, prevValue, rawValue, prevX;
+  var value, min, max, step, range, prevValue, rawValue, prevX;
+  var isValueSet, areAttrsSet, isChanged, isClick;
 
   // since any previous changes are unknown, assume element was just created
   if (slider.value !== '')
@@ -96,26 +117,7 @@ function create(slider) {
   });
 
   // initialize slider
-  var thumb = {
-    radius: isMac ? 9 : 6,
-    width: isMac ? 22 : 12,
-    height: isMac ? 16 : 20
-  };
-  var track = '-moz-linear-gradient(top, transparent ' +
-    (isMac ? '6px, #666 6px, #bbb' : '9px, #999 9px, #bbb 10px, #fff') +
-    ' 11px, transparent 11px, transparent)';
-  var styles = {
-    'font-size': 0, // -moz-user-select: none breaks onmousemove, so use this
-    'color': 'transparent',
-    'min-width': thumb.width + 'px',
-    'min-height': thumb.height + 'px',
-    'max-height': thumb.height + 'px',
-    padding: 0,
-    border: 0,
-    cursor: 'default'
-  };
-  for (var prop in styles)
-    slider.style.setProperty(prop, styles[prop], 'important');
+  style(slider, styles);
   if (getComputedStyle(slider, 0).width == thumb.width + 'px')
     slider.style.width = '129px'; // match WebKit just for giggles
   update();
@@ -133,9 +135,16 @@ function create(slider) {
   }, false);
 
   slider.addEventListener('mousedown', onDragStart, false);
+  slider.addEventListener('keydown', onKeyDown, false);
+  slider.addEventListener('focus', onFocus, false);
+  slider.addEventListener('blur', onBlur, false);
 
   function onDragStart(e) {
-    if (!range)
+    isClick = true;
+    setTimeout(function() {
+      isClick = false;
+    }, 0);
+    if (e.button || !range)
       return;
     var width = parseFloat(getComputedStyle(this, 0).width);
     var multiplier = (width - thumb.width) / range;
@@ -171,6 +180,25 @@ function create(slider) {
   function onDragEnd() {
     this.removeEventListener('mousemove', onDrag, false);
     this.removeEventListener('mouseup', onDragEnd, false);
+    prevX = NaN;
+  }
+
+  function onKeyDown(e) {
+    if (e.keyCode > 36 && e.keyCode < 41) { // 37-40: left, up, right, down
+      onFocus.call(this);
+      isChanged = true;
+      this.value = value + (e.keyCode == 38 || e.keyCode == 39 ? step : -step);
+    }
+  }
+
+  function onFocus() {
+    if (!isClick)
+      this.style.boxShadow = !isMac ? '0 0 0 2px #fb0' :
+        '0 0 2px 1px -moz-mac-focusring, inset 0 0 1px -moz-mac-focusring';
+  }
+
+  function onBlur() {
+    this.style.boxShadow = '';
   }
 
   // determines whether value is valid number in attribute form
@@ -215,6 +243,11 @@ function create(slider) {
       '-moz-element(#__sliderthumb__) ' + position + '% no-repeat, ' + track;
   }
 
+}
+
+function style(element, styles) {
+  for (var prop in styles)
+    element.style.setProperty(prop, styles[prop], 'important');
 }
 
 })();

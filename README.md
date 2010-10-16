@@ -18,9 +18,10 @@ Drawing the slider thumb appends only one extra node to the document, and this
 node is hidden and shared by all the sliders.
 
 It also provides robust implementions of the value, min, max, and step
-attributes and properties and the onchange event.
+attributes and properties and the onchange event. For keyboard accessibility,
+the slider can also be manipulated while focused using the arrow keys.
 
-Plans for future features include keyboard accessibility and IE9 support.
+Plans for future features include more accessibility and IE9 support.
 
 The source code is available under the MIT license.
 
