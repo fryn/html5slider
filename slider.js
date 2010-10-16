@@ -28,8 +28,8 @@ test.type = 'range';
 if (test.value == 50)
   return;
 
-// test for required CSS property support
-if (!('MozAppearance' in test.style) || !('backgroundSize' in test.style))
+// test for required property support
+if (!document.mozSetImageElement || !('MozAppearance' in test.style))
   return;
 
 var isMac = ~navigator.oscpu.indexOf(' OS X ');
@@ -44,11 +44,11 @@ function initialize() {
   // create slider affordance
   var appearance = isMac ? 'scale-horizontal' : 'scalethumb-horizontal';
   var thumb = document.createElement('hr');
-  thumb.id = '__sliderthumb__';
   thumb.style.setProperty('-moz-appearance', appearance, 'important');
   thumb.style.setProperty('position', 'fixed', 'important');
   thumb.style.setProperty('top', '-999999px', 'important');
   document.body.appendChild(thumb);
+  document.mozSetImageElement('__sliderthumb__', thumb);
   // create initial sliders
   Array.forEach(document.querySelectorAll('input[type=range]'), create);
 }
@@ -148,23 +148,23 @@ function create(slider) {
       isChanged = true;
       this.value -= -dev / multiplier;
     }
-    tempValue = value;
+    rawValue = value;
     prevX = e.clientX;
-    addEventListener('mousemove', onDrag, false);
-    addEventListener('mouseup', onDragEnd, false);
+    this.addEventListener('mousemove', onDrag, false);
+    this.addEventListener('mouseup', onDragEnd, false);
   }
 
   function onDrag(e) {
-    var width = parseFloat(getComputedStyle(slider, 0).width);
-    tempValue += (e.clientX - prevX) * range / (width - thumb.width);
+    var width = parseFloat(getComputedStyle(this, 0).width);
+    rawValue += (e.clientX - prevX) * range / (width - thumb.width);
     prevX = e.clientX;
     isChanged = true;
-    slider.value = tempValue;
+    this.value = rawValue;
   }
 
   function onDragEnd() {
-    removeEventListener('mousemove', onDrag, false);
-    removeEventListener('mouseup', onDragEnd, false);
+    this.removeEventListener('mousemove', onDrag, false);
+    this.removeEventListener('mouseup', onDragEnd, false);
   }
 
   // determines whether value is valid number in attribute form
