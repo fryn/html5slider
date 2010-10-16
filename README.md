@@ -6,7 +6,7 @@ slider.js
 It transforms all input elements with type range from textboxes to sliders
 on-the-fly automatically, so it does not require any input.
 
-Try it out by downloading the source and opening demo.html.
+Try out a [live demo](http://frankyan.com/labs/sliderjs.html) of it in action!
 
 To use slider.js, simply copy the slider.js file to the same directory as
 your web page and include the following line of code in the web page:
