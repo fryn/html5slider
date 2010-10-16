@@ -42,9 +42,9 @@ document.addEventListener('DOMNodeInserted', onTheFly, false);
 
 function initialize() {
   // create slider affordance
-  var appearance = isMac ? 'scale-horizontal' : 'scalethumb-horizontal';
   var thumb = document.createElement('hr');
-  thumb.style.setProperty('-moz-appearance', appearance, 'important');
+  var widget = isMac ? 'scale-horizontal' : 'scalethumb-horizontal';
+  thumb.style.setProperty('-moz-appearance', widget, 'important');
   thumb.style.setProperty('position', 'fixed', 'important');
   thumb.style.setProperty('top', '-999999px', 'important');
   document.body.appendChild(thumb);
@@ -107,7 +107,7 @@ function create(slider) {
   var styles = {
     'font-size': 0, // -moz-user-select: none breaks onmousemove, so use this
     'color': 'transparent',
-    'min-width': thumb.width + 'px',
+    'min-width': thumb.width + 2 + 'px',
     'min-height': thumb.height + 'px',
     'max-height': thumb.height + 'px',
     padding: 0,
@@ -117,7 +117,7 @@ function create(slider) {
   };
   for (var prop in styles)
     slider.style.setProperty(prop, styles[prop], 'important');
-  if (getComputedStyle(slider, 0).width == thumb.width + 'px')
+  if (getComputedStyle(slider, 0).width == thumb.width + 2 + 'px')
     slider.style.width = '129px'; // match WebKit just for giggles
   update();
 
@@ -155,6 +155,8 @@ function create(slider) {
   }
 
   function onDrag(e) {
+    if (e.clientX == prevX)
+      return;
     var width = parseFloat(getComputedStyle(this, 0).width);
     rawValue += (e.clientX - prevX) * range / (width - thumb.width);
     prevX = e.clientX;
@@ -196,13 +198,12 @@ function create(slider) {
   }
 
   // renders slider using CSS background ;)
-  function draw(dirty) {
+  function draw(attrsModified) {
     calc();
     if (isChanged && value != prevValue)
       slider.dispatchEvent(onChange);
     isChanged = false;
-    // prevent unnecessary redrawing
-    if (!dirty && value == prevValue)
+    if (!attrsModified && value == prevValue)
       return;
     prevValue = value;
     var position = range ? (value - min) / range * 100 : 0;

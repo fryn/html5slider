@@ -20,8 +20,7 @@ node is hidden and shared by all the sliders.
 It also provides robust implementions of the value, min, max, and step
 attributes and properties and the onchange event.
 
-While slider.js currently only supports Firefox 4, IE 9 support is also planned
-for the future.
+Plans for future features include keyboard accessibility and IE9 support.
 
 The source code is available under the MIT license.
 
