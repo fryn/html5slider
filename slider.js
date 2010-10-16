@@ -112,7 +112,6 @@ function create(slider) {
     'max-height': thumb.height + 'px',
     padding: 0,
     border: 0,
-    'border-radius': '99px',
     cursor: 'default'
   };
   for (var prop in styles)
