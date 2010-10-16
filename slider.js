@@ -107,7 +107,7 @@ function create(slider) {
   var styles = {
     'font-size': 0, // -moz-user-select: none breaks onmousemove, so use this
     'color': 'transparent',
-    'min-width': thumb.width + 2 + 'px',
+    'min-width': thumb.width + 'px',
     'min-height': thumb.height + 'px',
     'max-height': thumb.height + 'px',
     padding: 0,
@@ -117,7 +117,7 @@ function create(slider) {
   };
   for (var prop in styles)
     slider.style.setProperty(prop, styles[prop], 'important');
-  if (getComputedStyle(slider, 0).width == thumb.width + 2 + 'px')
+  if (getComputedStyle(slider, 0).width == thumb.width + 'px')
     slider.style.width = '129px'; // match WebKit just for giggles
   update();
 
@@ -140,6 +140,8 @@ function create(slider) {
       return;
     var width = parseFloat(getComputedStyle(this, 0).width);
     var multiplier = (width - thumb.width) / range;
+    if (!multiplier)
+      return;
     // distance between click and center of thumb
     var dev = e.clientX - this.getBoundingClientRect().left - thumb.width / 2 -
               (value - min) * multiplier;
@@ -158,7 +160,10 @@ function create(slider) {
     if (e.clientX == prevX)
       return;
     var width = parseFloat(getComputedStyle(this, 0).width);
-    rawValue += (e.clientX - prevX) * range / (width - thumb.width);
+    var multiplier = (width - thumb.width) / range;
+    if (!multiplier)
+      return;
+    rawValue += (e.clientX - prevX) / multiplier;
     prevX = e.clientX;
     isChanged = true;
     this.value = rawValue;
