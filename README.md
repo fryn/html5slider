@@ -1,7 +1,7 @@
 slider.js
 =========
 
-#### a JavaScript implementation of HTML5 `<input type="range">` for Firefox 4
+#### a JavaScript implementation of HTML5 `<input type=range>` for Firefox 4
 
 It transforms all input elements with type range from textboxes to sliders
 on-the-fly automatically, so it does not require any input.
@@ -25,7 +25,7 @@ for the future.
 
 The source code is available under the MIT license.
 
-For more information about HTML5 and `<input type="range">`, check out the
+For more information about HTML5 and `<input type=range>`, check out the
 fantastic online guide "Dive Into HTML5" by Mark Pilgrim:
 [http://diveintohtml5.org/forms.html#type-range](http://diveintohtml5.org/forms.html#type-range)
 
