@@ -102,10 +102,8 @@ function create(slider) {
     height: isMac ? 16 : 20
   };
   var track = '-moz-linear-gradient(top, transparent ' +
-    (isMac ?
-     '6px, #666 6px, #bbb 11px, transparent 11px' :
-     '9px, #999 9px, #bbb 10px, #fff 11px, transparent 11px') +
-    ', transparent)';
+    (isMac ? '6px, #666 6px, #bbb' : '9px, #999 9px, #bbb 10px, #fff') +
+    ' 11px, transparent 11px, transparent)';
   var styles = {
     'font-size': 0, // -moz-user-select: none breaks onmousemove, so use this
     'color': 'transparent',
@@ -143,7 +141,7 @@ function create(slider) {
     var width = parseFloat(getComputedStyle(this, 0).width);
     var multiplier = (width - thumb.width) / range;
     // distance between click and center of thumb
-    var dev = e.clientX - this.offsetLeft - thumb.width / 2 -
+    var dev = e.clientX - this.getBoundingClientRect().left - thumb.width / 2 -
               (value - min) * multiplier;
     // if click was not on thumb, move thumb to click location
     if (Math.abs(dev) > thumb.radius) {
