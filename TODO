@@ -1,5 +1,5 @@
 - enable keyboard controls
 - test styling on linux
-- indicate focused state
+- indicate active state
 - update when type attribute of input elements are modified
 - integrate -moz-grab/-moz-grabbing cursor?

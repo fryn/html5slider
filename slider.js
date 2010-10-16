@@ -91,7 +91,7 @@ function create(slider) {
     slider.value = tempValue;
   }
 
-  function onDragEnd(e) {
+  function onDragEnd() {
     removeEventListener('mousemove', onDrag, false);
     removeEventListener('mouseup', onDragEnd, false);
   }
@@ -133,12 +133,8 @@ function create(slider) {
     prevValue = value;
     // render it!
     var position = range ? (value - min) / range * 100 : 0;
-    var top = thumb.height / 2 - 2;
     slider.style.background =
-      '-moz-element(#__sliderthumb__) ' + position + '% no-repeat, ' +
-      '-moz-linear-gradient(top, transparent ' + top + 'px, #666 ' + top +
-        'px, #bbb ' + (top + 5) + 'px, transparent ' + (top + 5) +
-        'px, transparent) no-repeat'; // slider track
+      '-moz-element(#__sliderthumb__) ' + position + '% no-repeat, ' + track;
   }
 
   var value, min, max, step;
@@ -170,12 +166,20 @@ function create(slider) {
     });
   });
 
+  // initialize slider
   var thumb = {
     radius: isMac ? 9 : 6,
     width: isMac ? 22 : 12,
     height: isMac ? 22 : 20
   };
+  var track = '-moz-linear-gradient(top, transparent ' +
+    (isMac ?
+     '9px, #666 9px, #bbb 14px, transparent 14px' :
+     '9px, #999 9px, #bbb 10px, #fff 11px, transparent 11px') +
+    ', transparent)';
   var styles = {
+    // -moz-user-select: none breaks dragging outside window, so use this
+    'font-size': 0,
     'color': 'transparent',
     'background-size': 'contain',
     'min-width': thumb.width + 'px',
@@ -183,13 +187,12 @@ function create(slider) {
     'max-height': thumb.height + 'px',
     padding: 0,
     border: 0,
-    cursor: 'default',
-    '-moz-user-select': 'none'
+    cursor: 'default'
   };
   for (var prop in styles)
     slider.style.setProperty(prop, styles[prop], 'important');
-
-  // initialize slider
+  if (getComputedStyle(slider, 0).width == thumb.width + 'px')
+    slider.style.width = '129px'; // match WebKit just for giggles
   update();
 
   slider.addEventListener('DOMAttrModified', function(e) {
