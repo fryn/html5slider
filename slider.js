@@ -28,7 +28,7 @@ test.type = 'range';
 if (test.value == 50)
   return;
 // test for required CSS property support
-if (!('MozAppearance' in test.style))
+if (!('MozAppearance' in test.style) || !('backgroundSize' in test.style))
   return;
 
 var isMac = ~navigator.oscpu.indexOf(' OS X ');
@@ -146,6 +146,7 @@ function create(slider) {
     value = slider.value;
   // implement value property properly
   slider.__defineGetter__('value', function() {
+    // recalculate synchronously in case of min/max/step modifications
     calc();
     return '' + value;
   });
@@ -154,7 +155,7 @@ function create(slider) {
     isValueSet = true;
     draw();
   });
-  // this is needed, b/c UI value changes will no longer trigger events
+  // UI value changes will no longer trigger events, so use this
   var onChange = document.createEvent('HTMLEvents');
   onChange.initEvent('change', false, false);
 
