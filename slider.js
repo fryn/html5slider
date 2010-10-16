@@ -120,14 +120,13 @@ function create(slider) {
       value = min + ~~(range / step) * step;
   }
 
-  // renders slider using CSS width, margin, and box-shadow
+  // renders slider using CSS background ;)
   function draw(dirty) {
     calc();
     // prevent unnecessary redrawing
     if (!dirty && value == prevValue)
       return;
     prevValue = value;
-    // render it!
     var position = range ? (value - min) / range * 100 : 0;
     slider.style.background =
       '-moz-element(#__sliderthumb__) ' + position + '% no-repeat, ' + track;
