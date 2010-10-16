@@ -31,6 +31,8 @@ if (test.value == 50)
 if (!('MozAppearance' in test.style))
   return;
 
+var isMac = ~navigator.oscpu.indexOf(' OS X ');
+
 if (document.readyState == 'loading')
   document.addEventListener('DOMContentLoaded', createAll, false);
 else
@@ -46,14 +48,19 @@ document.addEventListener('DOMNodeInserted', function(e) {
   }, 0, e.target);
 }, false);
 
-function createAll() {
+function themeNatively() {
   // create slider affordance
+  var appearance = isMac ? 'scale-horizontal' : 'scalethumb-horizontal';
   var thumb = document.createElement('hr');
   thumb.id = '__scale-horizontal__';
-  thumb.style.setProperty('-moz-appearance', 'scale-horizontal', 'important');
+  thumb.style.setProperty('-moz-appearance', appearance, 'important');
   thumb.style.setProperty('position', 'fixed', 'important');
   thumb.style.setProperty('top', '-999999px', 'important');
   document.body.appendChild(thumb);
+}
+
+function createAll() {
+  themeNatively();
   // create initial sliders
   Array.forEach(document.querySelectorAll('input[type=range]'), create);
 }
@@ -64,12 +71,13 @@ function create(slider) {
     if (!range)
       return;
     var width = parseFloat(getComputedStyle(this, 0).width);
-    var multiplier = (width - 22) / range;
+    var multiplier = (width - thumb.width) / range;
     // distance between click and center of nub
-    var diff = e.clientX - this.offsetLeft - 11 - (value - min) * multiplier;
+    var dev = e.clientX - this.offsetLeft - thumb.width / 2 -
+              (value - min) * multiplier;
     // if click was not on nub, move nub to click location
-    if (Math.abs(diff) > 9)
-      this.value -= -diff / multiplier;
+    if (Math.abs(dev) > thumb.radius)
+      this.value -= -dev / multiplier;
     tempValue = value;
     prevX = e.clientX;
     addEventListener('mousemove', onDrag, false);
@@ -78,7 +86,7 @@ function create(slider) {
 
   function onDrag(e) {
     var width = parseFloat(getComputedStyle(slider, 0).width);
-    tempValue += (e.clientX - prevX) * range / (width - 22);
+    tempValue += (e.clientX - prevX) * range / (width - thumb.width);
     prevX = e.clientX;
     slider.value = tempValue;
   }
@@ -164,12 +172,17 @@ function create(slider) {
   // initialize slider
   update.call(slider);
 
+  var thumb = {
+    radius: isMac ? 9 : 6,
+    width: isMac ? 22 : 12,
+    height: isMac ? 22 : 20
+  };
   var styles = {
     'color': 'transparent',
     'background-size': 'contain',
-    'min-width': '22px',
-    'min-height': '22px',
-    'max-height': '22px',
+    'min-width': thumb.width + 'px',
+    'min-height': thumb.height + 'px',
+    'max-height': thumb.height + 'px',
     padding: 0,
     border: 0,
     cursor: 'default',
