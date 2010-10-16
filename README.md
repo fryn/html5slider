@@ -4,7 +4,7 @@ slider.js
 #### a JavaScript implementation of HTML5 `<input type=range>` for Firefox 4
 
 It transforms all input elements with type range from textboxes to sliders
-on-the-fly automatically, so it does not require any input.
+on-the-fly automatically, leaving no need for manual function calls.
 
 Try out a [live demo](http://frankyan.com/labs/sliderjs.html) of it in action!
 
@@ -14,7 +14,7 @@ your web page and include the following line of code in the web page:
 `<script src="slider.js"></script>`
 
 slider.js renders the sliders using pure CSS gradients and -moz-element().
-Drawing the slider thumb requires only one additional node to be added; this
+Drawing the slider thumb appends only one extra node to the document, and this
 node is hidden and shared by all the sliders.
 
 It also provides robust implementions of the value, min, max, and step
