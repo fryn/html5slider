@@ -79,7 +79,7 @@ function create(slider) {
     isValueSet = true;
     draw();
   });
-  // UI value changes will no longer trigger events, so use this
+  // set up for onchange implementation
   var onChange = document.createEvent('HTMLEvents');
   onChange.initEvent('change', false, false);
 
@@ -107,10 +107,8 @@ function create(slider) {
      '9px, #999 9px, #bbb 10px, #fff 11px, transparent 11px') +
     ', transparent)';
   var styles = {
-    // -moz-user-select: none breaks dragging outside window, so use this
-    'background-size': 'contain',
+    'font-size': 0, // -moz-user-select: none breaks onmousemove, so use this
     'color': 'transparent',
-    'font-size': 0,
     'min-width': thumb.width + 'px',
     'min-height': thumb.height + 'px',
     'max-height': thumb.height + 'px',
