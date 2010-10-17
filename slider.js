@@ -43,7 +43,7 @@ var track = '-moz-linear-gradient(top, transparent ' + (isMac ?
   '9px, #999 9px, #bbb 10px, #fff 11px, transparent 11px') +
   ', transparent)';
 var styles = {
-  'font-size': 0, // -moz-user-select: none breaks onmousemove, so use this
+  'font-size': 0, // -moz-user-select: none breaks mouse events, so use this
   'color': 'transparent',
   'min-width': thumb.width + 'px',
   'min-height': thumb.height + 'px',
@@ -53,6 +53,8 @@ var styles = {
   'border-radius': 0,
   cursor: 'default'
 };
+var onChange = document.createEvent('HTMLEvents');
+onChange.initEvent('change', true, false);
 
 if (document.readyState == 'loading')
   document.addEventListener('DOMContentLoaded', initialize, false);
@@ -100,9 +102,6 @@ function create(slider) {
     isValueSet = true;
     draw();
   });
-  // set up for onchange implementation
-  var onChange = document.createEvent('HTMLEvents');
-  onChange.initEvent('change', false, false);
 
   // sync properties with attributes
   ['min', 'max', 'step'].forEach(function(prop) {
@@ -200,7 +199,7 @@ function create(slider) {
 
   // determines whether value is valid number in attribute form
   function isAttrNum(value) {
-    return !isNaN(value) && +value == parseFloat(value, 10);
+    return !isNaN(value) && +value == parseFloat(value);
   }
 
   // validates min, max, and step attributes/properties and redraws
