@@ -36,7 +36,7 @@ var isMac = ~navigator.oscpu.indexOf(' OS X ');
 var thumb = {
   radius: isMac ? 9 : 6,
   width: isMac ? 22 : 12,
-  height: isMac ? 16 : 20 // mac w/ focused thumb sprite: 22px
+  height: isMac ? 16 : 20 // mac w/ focused thumb sprite would require 22px
 };
 var track = '-moz-linear-gradient(top, transparent ' +
   (isMac ?
@@ -59,7 +59,6 @@ if (document.readyState == 'loading')
   document.addEventListener('DOMContentLoaded', initialize, false);
 else
   initialize();
-document.addEventListener('DOMNodeInserted', onTheFly, false);
 
 function initialize() {
   // create slider affordance
@@ -72,15 +71,17 @@ function initialize() {
   document.mozSetImageElement('__sliderthumb__', scale);
   // create initial sliders
   Array.forEach(document.querySelectorAll('input[type=range]'), create);
+  // create sliders on-the-fly
+  document.addEventListener('DOMNodeInserted', onTheFly, false);
 }
 
-function onTheFly(e) {
+function onTheFly(e, async) {
   if (e.target.localName != 'input')
     return;
-  setTimeout(function(input) {
-    if (input.getAttribute('type') == 'range')
-      create(input);
-  }, 0, e.target);
+  if (e.target.getAttribute('type') == 'range')
+    create(e.target);
+  else if (!async)
+    setTimeout(onTheFly, 0, e, true);
 }
 
 function create(slider) {
@@ -141,9 +142,7 @@ function create(slider) {
 
   function onDragStart(e) {
     isClick = true;
-    setTimeout(function() {
-      isClick = false;
-    }, 0);
+    setTimeout(function() { isClick = false; }, 0);
     if (e.button || !range)
       return;
     var width = parseFloat(getComputedStyle(this, 0).width);
@@ -180,7 +179,6 @@ function create(slider) {
   function onDragEnd() {
     this.removeEventListener('mousemove', onDrag, false);
     this.removeEventListener('mouseup', onDragEnd, false);
-    prevX = NaN;
   }
 
   function onKeyDown(e) {
