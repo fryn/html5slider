@@ -36,21 +36,21 @@ var isMac = ~navigator.oscpu.indexOf(' OS X ');
 var thumb = {
   radius: isMac ? 9 : 6,
   width: isMac ? 22 : 12,
-  height: isMac ? 16 : 20 // mac w/ focused thumb sprite would require 22px
+  height: isMac ? 16 : 20
 };
 var track = '-moz-linear-gradient(top, transparent ' + (isMac ?
   '6px, #999 6px, #999 7px, #ccc 9px, #bbb 11px, #bbb 12px, transparent 12px' :
   '9px, #999 9px, #bbb 10px, #fff 11px, transparent 11px') +
   ', transparent)';
 var styles = {
-  'text-indent': '999999px', // -moz-user-select: none breaks mouse events
   'min-width': thumb.width + 'px',
   'min-height': thumb.height + 'px',
   'max-height': thumb.height + 'px',
   padding: 0,
   border: 0,
   'border-radius': 0,
-  cursor: 'default'
+  cursor: 'default',
+  'text-indent': '-999999px' // -moz-user-select: none; breaks mouse events
 };
 var onChange = document.createEvent('HTMLEvents');
 onChange.initEvent('change', true, false);
@@ -89,13 +89,10 @@ function onTheFly(e, async) {
 
 function create(slider) {
 
-  var value, min, max, step, range, prevValue, rawValue, prevX;
-  var isValueSet, areAttrsSet, isChanged, isClick;
+  var isValueSet, areAttrsSet, isChanged, isClick, prevValue, rawValue, prevX;
+  var min, max, step, range, value = slider.value;
 
-  // since any previous changes are unknown, assume element was just created
-  if (slider.value !== '')
-    value = slider.value;
-  // implement value property properly
+  // reimplement value property
   slider.__defineGetter__('value', function() {
     return '' + value;
   });
@@ -118,6 +115,7 @@ function create(slider) {
   });
 
   // initialize slider
+  slider.readOnly = true;
   style(slider, styles);
   update();
 
@@ -202,7 +200,7 @@ function create(slider) {
     return !isNaN(value) && +value == parseFloat(value);
   }
 
-  // validates min, max, and step attributes/properties and redraws
+  // validates min, max, and step attributes and redraws
   function update() {
     min = isAttrNum(slider.min) ? +slider.min : 0;
     max = isAttrNum(slider.max) ? +slider.max : 100;
