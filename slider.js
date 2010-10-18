@@ -66,6 +66,9 @@ function initialize() {
   var scale = document.body.appendChild(document.createElement('hr'));
   style(scale, {
     '-moz-appearance': isMac ? 'scale-horizontal' : 'scalethumb-horizontal',
+    display: 'block',
+    visibility: 'visible',
+    opacity: 1,
     position: 'fixed',
     top: '-999999px'
   });
