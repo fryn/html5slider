@@ -43,8 +43,7 @@ var track = '-moz-linear-gradient(top, transparent ' + (isMac ?
   '9px, #999 9px, #bbb 10px, #fff 11px, transparent 11px') +
   ', transparent)';
 var styles = {
-  'font-size': 0, // -moz-user-select: none breaks mouse events, so use this
-  'color': 'transparent',
+  'text-indent': '999999px', // -moz-user-select: none breaks mouse events
   'min-width': thumb.width + 'px',
   'min-height': thumb.height + 'px',
   'max-height': thumb.height + 'px',
@@ -120,8 +119,6 @@ function create(slider) {
 
   // initialize slider
   style(slider, styles);
-  if (getComputedStyle(slider, 0).width == thumb.width + 'px')
-    slider.style.width = '129px'; // match WebKit just for giggles
   update();
 
   slider.addEventListener('DOMAttrModified', function(e) {
