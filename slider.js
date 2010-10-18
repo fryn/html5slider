@@ -160,8 +160,6 @@ function create(slider) {
   }
 
   function onDrag(e) {
-    if (e.clientX == prevX)
-      return;
     var width = parseFloat(getComputedStyle(this, 0).width);
     var multiplier = (width - thumb.width) / range;
     if (!multiplier)
