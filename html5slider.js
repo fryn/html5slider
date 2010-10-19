@@ -1,4 +1,6 @@
 /*
+html5slider - a JS implementation of <input type=range> for Firefox 4
+
 Copyright (c) 2010 Frank Yan, <http://frankyan.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,7 +27,7 @@ THE SOFTWARE.
 // test for native support
 var test = document.createElement('input');
 test.type = 'range';
-if (test.value == 50)
+if (test.type == 'range')
   return;
 
 // test for required property support
