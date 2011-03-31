@@ -26,15 +26,19 @@ THE SOFTWARE.
 
 // test for native support
 var test = document.createElement('input');
-test.type = 'range';
-if (test.type == 'range')
+try {
+  test.type = 'range';
+  if (test.type == 'range')
+    return;
+} catch (e) {
   return;
+}
 
 // test for required property support
 if (!document.mozSetImageElement || !('MozAppearance' in test.style))
   return;
 
-var isMac = ~navigator.oscpu.indexOf(' OS X ');
+var isMac = navigator.platform == 'MacIntel';
 var thumb = {
   radius: isMac ? 9 : 6,
   width: isMac ? 22 : 12,
@@ -75,26 +79,31 @@ function initialize() {
   });
   document.mozSetImageElement('__sliderthumb__', scale);
   // create initial sliders
-  Array.forEach(document.querySelectorAll('input[type=range]'), create);
+  Array.forEach(document.querySelectorAll('input[type=range]'), transform);
   // create sliders on-the-fly
-  document.addEventListener('DOMNodeInserted', onTheFly, false);
+  document.addEventListener('DOMNodeInserted', onNodeInserted, false);
 }
 
-function onTheFly(e, async) {
-  if (e.target.localName != 'input')
-    return;
-  if (e.target.getAttribute('type') == 'range')
-    create(e.target);
+function onNodeInserted(e) {
+  check(e.target);
+  if (e.target.querySelectorAll)
+    Array.forEach(e.target.querySelectorAll('input'), check);
+}
+
+function check(input, async) {
+  if (input.localName != 'input' || input.type == 'range');
+  else if (input.getAttribute('type') == 'range')
+    transform(input);
   else if (!async)
     setTimeout(onTheFly, 0, e, true);
 }
 
-function create(slider) {
+function transform(slider) {
 
   var isValueSet, areAttrsSet, isChanged, isClick, prevValue, rawValue, prevX;
   var min, max, step, range, value = slider.value;
 
-  // reimplement value property
+  // reimplement value and type properties
   slider.__defineGetter__('value', function() {
     return '' + value;
   });
@@ -102,6 +111,9 @@ function create(slider) {
     value = '' + val;
     isValueSet = true;
     draw();
+  });
+  slider.__defineGetter__('type', function() {
+    return 'range';
   });
 
   // sync properties with attributes
