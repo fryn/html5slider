@@ -95,7 +95,7 @@ function check(input, async) {
   else if (input.getAttribute('type') == 'range')
     transform(input);
   else if (!async)
-    setTimeout(onTheFly, 0, e, true);
+    setTimeout(check, 0, input, true);
 }
 
 function transform(slider) {
