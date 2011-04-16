@@ -1,7 +1,7 @@
 /*
-html5slider - a JS implementation of <input type=range> for Firefox 4
+html5slider - a JS implementation of <input type=range> for Firefox 4 and up
 
-Copyright (c) 2010 Frank Yan, <http://frankyan.com>
+Copyright (c) 2010-2011 Frank Yan, <http://frankyan.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -56,7 +56,7 @@ var styles = {
   border: 0,
   'border-radius': 0,
   cursor: 'default',
-  'text-indent': '-999999px' // -moz-user-select: none; breaks mouse events
+  'text-indent': '-999999px' // -moz-user-select: none; breaks mouse capture
 };
 var onChange = document.createEvent('HTMLEvents');
 onChange.initEvent('change', true, false);
