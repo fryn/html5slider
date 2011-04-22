@@ -38,6 +38,7 @@ try {
 if (!document.mozSetImageElement || !('MozAppearance' in test.style))
   return;
 
+var scale;
 var isMac = navigator.platform == 'MacIntel';
 var thumb = {
   radius: isMac ? 9 : 6,
@@ -62,26 +63,15 @@ var onChange = document.createEvent('HTMLEvents');
 onChange.initEvent('change', true, false);
 
 if (document.readyState == 'loading')
-  document.addEventListener('DOMContentLoaded', initialize, false);
+  document.addEventListener('DOMContentLoaded', initialize, true);
 else
   initialize();
 
 function initialize() {
-  // create slider affordance
-  var scale = document.body.appendChild(document.createElement('hr'));
-  style(scale, {
-    '-moz-appearance': isMac ? 'scale-horizontal' : 'scalethumb-horizontal',
-    display: 'block',
-    visibility: 'visible',
-    opacity: 1,
-    position: 'fixed',
-    top: '-999999px'
-  });
-  document.mozSetImageElement('__sliderthumb__', scale);
   // create initial sliders
   Array.forEach(document.querySelectorAll('input[type=range]'), transform);
   // create sliders on-the-fly
-  document.addEventListener('DOMNodeInserted', onNodeInserted, false);
+  document.addEventListener('DOMNodeInserted', onNodeInserted, true);
 }
 
 function onNodeInserted(e) {
@@ -102,6 +92,20 @@ function transform(slider) {
 
   var isValueSet, areAttrsSet, isChanged, isClick, prevValue, rawValue, prevX;
   var min, max, step, range, value = slider.value;
+
+  // lazily create shared slider affordance
+  if (!scale) {
+    scale = document.body.appendChild(document.createElement('hr'));
+    style(scale, {
+      '-moz-appearance': isMac ? 'scale-horizontal' : 'scalethumb-horizontal',
+      display: 'block',
+      visibility: 'visible',
+      opacity: 1,
+      position: 'fixed',
+      top: '-999999px'
+    });
+    document.mozSetImageElement('__sliderthumb__', scale);
+  }
 
   // reimplement value and type properties
   slider.__defineGetter__('value', function() {
@@ -143,12 +147,12 @@ function transform(slider) {
       update();
       areAttrsSet = true;
     }
-  }, false);
+  }, true);
 
-  slider.addEventListener('mousedown', onDragStart, false);
-  slider.addEventListener('keydown', onKeyDown, false);
-  slider.addEventListener('focus', onFocus, false);
-  slider.addEventListener('blur', onBlur, false);
+  slider.addEventListener('mousedown', onDragStart, true);
+  slider.addEventListener('keydown', onKeyDown, true);
+  slider.addEventListener('focus', onFocus, true);
+  slider.addEventListener('blur', onBlur, true);
 
   function onDragStart(e) {
     isClick = true;
@@ -169,8 +173,8 @@ function transform(slider) {
     }
     rawValue = value;
     prevX = e.clientX;
-    this.addEventListener('mousemove', onDrag, false);
-    this.addEventListener('mouseup', onDragEnd, false);
+    this.addEventListener('mousemove', onDrag, true);
+    this.addEventListener('mouseup', onDragEnd, true);
   }
 
   function onDrag(e) {
@@ -185,8 +189,8 @@ function transform(slider) {
   }
 
   function onDragEnd() {
-    this.removeEventListener('mousemove', onDrag, false);
-    this.removeEventListener('mouseup', onDragEnd, false);
+    this.removeEventListener('mousemove', onDrag, true);
+    this.removeEventListener('mouseup', onDragEnd, true);
   }
 
   function onKeyDown(e) {
@@ -216,7 +220,9 @@ function transform(slider) {
   function update() {
     min = isAttrNum(slider.min) ? +slider.min : 0;
     max = isAttrNum(slider.max) ? +slider.max : 100;
-    step = isAttrNum(slider.step) ? +slider.step : 1;
+    if (max < min)
+      max = min > 100 ? min : 100;
+    step = isAttrNum(slider.step) && slider.step > 0 ? +slider.step : 1;
     range = max - min;
     draw(true);
   }
@@ -245,8 +251,8 @@ function transform(slider) {
       return;
     prevValue = value;
     var position = range ? (value - min) / range * 100 : 0;
-    slider.style.background =
-      '-moz-element(#__sliderthumb__) ' + position + '% no-repeat, ' + track;
+    var bg = '-moz-element(#__sliderthumb__) ' + position + '% no-repeat, ';
+    style(slider, { background: bg + track });
   }
 
 }
