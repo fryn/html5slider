@@ -1,5 +1,6 @@
 /*
 html5slider - a JS implementation of <input type=range> for Firefox 4 and up
+https://github.com/fryn/html5slider
 
 Copyright (c) 2010-2011 Frank Yan, <http://frankyan.com>
 
