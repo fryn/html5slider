@@ -109,17 +109,19 @@ function transform(slider) {
   }
 
   // reimplement value and type properties
-  slider.__defineGetter__('value', function() {
-    return '' + value;
-  });
-  slider.__defineSetter__('value', function(val) {
+  var getValue = function() { return '' + value; };
+  var setValue = function setValue(val) {
     value = '' + val;
     isValueSet = true;
     draw();
-  });
-  slider.__defineGetter__('type', function() {
-    return 'range';
-  });
+    delete slider.value;
+    slider.value = value;
+    slider.__defineGetter__('value', getValue);
+    slider.__defineSetter__('value', setValue);
+  };
+  slider.__defineGetter__('value', getValue);
+  slider.__defineSetter__('value', setValue);
+  slider.__defineGetter__('type', function() { return 'range'; });
 
   // sync properties with attributes
   ['min', 'max', 'step'].forEach(function(prop) {
