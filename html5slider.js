@@ -1,8 +1,8 @@
 /*
-html5slider - a JS implementation of <input type=range> for Firefox 4 and up
+html5slider - a JS implementation of <input type=range> for Firefox 16 and up
 https://github.com/fryn/html5slider
 
-Copyright (c) 2010-2011 Frank Yan, <http://frankyan.com>
+Copyright (c) 2010-2012 Frank Yan, <http://frankyan.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -36,7 +36,9 @@ try {
 }
 
 // test for required property support
-if (!document.mozSetImageElement || !('MozAppearance' in test.style))
+test.style.background = 'linear-gradient(red, red)';
+if (!test.style.backgroundImage || !('MozAppearance' in test.style) ||
+    !document.mozSetImageElement || !this.MutationObserver)
   return;
 
 var scale;
@@ -46,8 +48,8 @@ var thumb = {
   width: isMac ? 22 : 12,
   height: isMac ? 16 : 20
 };
-var track = '-moz-linear-gradient(top, transparent ' + (isMac ?
-  '6px, #999 6px, #999 7px, #ccc 9px, #bbb 11px, #bbb 12px, transparent 12px' :
+var track = 'linear-gradient(transparent ' + (isMac ?
+  '6px, #999 6px, #999 7px, #ccc 8px, #bbb 9px, #bbb 10px, transparent 10px' :
   '9px, #999 9px, #bbb 10px, #fff 11px, transparent 11px') +
   ', transparent)';
 var styles = {
@@ -60,6 +62,11 @@ var styles = {
   cursor: 'default',
   'text-indent': '-999999px' // -moz-user-select: none; breaks mouse capture
 };
+var options = {
+  attributes: true,
+  attributeFilter: ['min', 'max', 'step', 'value']
+};
+var forEach = Array.prototype.forEach;
 var onChange = document.createEvent('HTMLEvents');
 onChange.initEvent('change', true, false);
 
@@ -70,23 +77,24 @@ else
 
 function initialize() {
   // create initial sliders
-  Array.forEach(document.querySelectorAll('input[type=range]'), transform);
+  forEach.call(document.querySelectorAll('input[type=range]'), transform);
   // create sliders on-the-fly
-  document.addEventListener('DOMNodeInserted', onNodeInserted, true);
+  new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+      if (mutation.addedNodes)
+        forEach.call(mutation.addedNodes, function(node) {
+          check(node);
+          if (node.childElementCount)
+            forEach.call(node.querySelectorAll('input'), check);
+        });
+    });
+  }).observe(document, { childList: true, subtree: true });
 }
 
-function onNodeInserted(e) {
-  check(e.target);
-  if (e.target.querySelectorAll)
-    Array.forEach(e.target.querySelectorAll('input'), check);
-}
-
-function check(input, async) {
-  if (input.localName != 'input' || input.type == 'range');
-  else if (input.getAttribute('type') == 'range')
+function check(input) {
+  if (input.localName == 'input' && input.type != 'range' &&
+      input.getAttribute('type') == 'range')
     transform(input);
-  else if (!async)
-    setTimeout(check, 0, input, true);
 }
 
 function transform(slider) {
@@ -140,17 +148,19 @@ function transform(slider) {
   style(slider, styles);
   update();
 
-  slider.addEventListener('DOMAttrModified', function(e) {
-    // note that value attribute only sets initial value
-    if (e.attrName == 'value' && !isValueSet) {
-      value = e.newValue;
-      draw();
-    }
-    else if (~['min', 'max', 'step'].indexOf(e.attrName)) {
-      update();
-      areAttrsSet = true;
-    }
-  }, true);
+  new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+      if (mutation.attributeName != 'value') {
+        update();
+        areAttrsSet = true;
+      }
+      // note that value attribute only sets initial value
+      else if (!isValueSet) {
+        value = slider.getAttribute('value');
+        draw();
+      }
+    });
+  }).observe(slider, options);
 
   slider.addEventListener('mousedown', onDragStart, true);
   slider.addEventListener('keydown', onKeyDown, true);
@@ -207,7 +217,7 @@ function transform(slider) {
   function onFocus() {
     if (!isClick)
       this.style.boxShadow = !isMac ? '0 0 0 2px #fb0' :
-        '0 0 2px 1px -moz-mac-focusring, inset 0 0 1px -moz-mac-focusring';
+        'inset 0 0 20px rgba(0,127,255,.1), 0 0 1px rgba(0,127,255,.4)';
   }
 
   function onBlur() {
