@@ -6,7 +6,7 @@ html5slider
 It transforms all input elements with type range from plain textboxes to sliders
 on-the-fly automatically, leaving no need for manual function calls.
 
-Try out a [live demo](http://frankyan.com/labs/html5slider.html)!
+Try out a [live demo](http://frankyan.com/labs/html5slider/)!
 
 To use html5slider, simply copy the html5slider.js file to the same directory as
 your web page and include the following line of code in the web page:
@@ -20,8 +20,6 @@ node is hidden and shared by all the sliders.
 It also provides robust implementions of the value, min, max, and step
 attributes and properties and the onchange event. For keyboard accessibility,
 the slider can also be manipulated while focused using the arrow keys.
-
-Plans for future features include more accessibility and IE 9 support.
 
 The source code is available under the MIT license.
 
