@@ -54,7 +54,7 @@ var styles = {
   'min-width': thumb.width + 'px',
   'min-height': thumb.height + 'px',
   'max-height': thumb.height + 'px',
-  padding: 0,
+  padding: '0 0 ' + (isMac ? '2px' : '1px'),
   border: 0,
   'border-radius': 0,
   cursor: 'default',
