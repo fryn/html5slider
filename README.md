@@ -27,7 +27,7 @@ The source code is available under the MIT license.
 
 For more information about HTML5 and `<input type=range>`, check out the
 fantastic online guide "Dive Into HTML5" by Mark Pilgrim:
-[http://diveintohtml5.org/forms.html#type-range](http://diveintohtml5.org/forms.html#type-range)
+[http://diveintohtml5.info/forms.html#type-range](http://diveintohtml5.info/forms.html#type-range)
 
 For more HTML5 polyfills and shims, check out this collection:
 [http://github.com/Modernizr/Modernizr/wiki/HTML5-Cross-browser-Polyfills](http://github.com/Modernizr/Modernizr/wiki/HTML5-Cross-browser-Polyfills)
