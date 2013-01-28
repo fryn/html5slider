@@ -38,33 +38,33 @@ try {
 // test for required property support
 test.style.background = 'linear-gradient(red, red)';
 if (!test.style.backgroundImage || !('MozAppearance' in test.style) ||
-    !document.mozSetImageElement || !this.MutationObserver)
+    !document['mozSetImageElement'] || !this.MutationObserver)
   return;
 
 var scale;
 var isMac = navigator.platform == 'MacIntel';
 var thumb = {
-  radius: isMac ? 9 : 6,
-  width: isMac ? 22 : 12,
-  height: isMac ? 16 : 20
+  "radius": isMac ? 9 : 6,
+  "width": isMac ? 22 : 12,
+  "height": isMac ? 16 : 20
 };
 var track = 'linear-gradient(transparent ' + (isMac ?
   '6px, #999 6px, #999 7px, #ccc 8px, #bbb 9px, #bbb 10px, transparent 10px' :
   '9px, #999 9px, #bbb 10px, #fff 11px, transparent 11px') +
   ', transparent)';
 var styles = {
-  'min-width': thumb.width + 'px',
-  'min-height': thumb.height + 'px',
-  'max-height': thumb.height + 'px',
-  padding: '0 0 ' + (isMac ? '2px' : '1px'),
-  border: 0,
-  'border-radius': 0,
-  cursor: 'default',
-  'text-indent': '-999999px' // -moz-user-select: none; breaks mouse capture
+  "min-width": thumb.width + 'px',
+  "min-height": thumb.height + 'px',
+  "max-height": thumb.height + 'px',
+  "padding": '0 0 ' + (isMac ? '2px' : '1px'),
+  "border": 0,
+  "border-radius": 0,
+  "cursor": 'default',
+  "text-indent": '-999999px' // -moz-user-select: none; breaks mouse capture
 };
 var options = {
-  attributes: true,
-  attributeFilter: ['min', 'max', 'step', 'value']
+  "attributes": true,
+  "attributeFilter": ['min', 'max', 'step', 'value']
 };
 var forEach = Array.prototype.forEach;
 var onChange = document.createEvent('HTMLEvents');
@@ -88,7 +88,7 @@ function initialize() {
             forEach.call(node.querySelectorAll('input'), check);
         });
     });
-  }).observe(document, { childList: true, subtree: true });
+  }).observe(document, {"childList": true, "subtree": true});
 }
 
 function check(input) {
@@ -106,14 +106,14 @@ function transform(slider) {
   if (!scale) {
     scale = document.body.appendChild(document.createElement('hr'));
     style(scale, {
-      '-moz-appearance': isMac ? 'scale-horizontal' : 'scalethumb-horizontal',
-      display: 'block',
-      visibility: 'visible',
-      opacity: 1,
-      position: 'fixed',
-      top: '-999999px'
+      "-moz-appearance": isMac ? 'scale-horizontal' : 'scalethumb-horizontal',
+      "display": 'block',
+      "visibility": 'visible',
+      "opacity": 1,
+      "position": 'fixed',
+      "top": '-999999px'
     });
-    document.mozSetImageElement('__sliderthumb__', scale);
+    document['mozSetImageElement']('__sliderthumb__', scale);
   }
 
   // reimplement value and type properties
@@ -139,12 +139,17 @@ function transform(slider) {
       return this.hasAttribute(prop) ? this.getAttribute(prop) : '';
     });
     slider.__defineSetter__(prop, function(val) {
-      val === null ? this.removeAttribute(prop) : this.setAttribute(prop, val);
+      if (val === null) {
+        this.removeAttribute(prop);
+      }
+      else {
+        this.setAttribute(prop, val);
+      }
     });
   });
 
   // initialize slider
-  slider.readOnly = true;
+  slider['readOnly'] = true;
   style(slider, styles);
   update();
 
@@ -172,7 +177,7 @@ function transform(slider) {
     setTimeout(function() { isClick = false; }, 0);
     if (e.button || !range)
       return;
-    var width = parseFloat(getComputedStyle(this, 0).width);
+    var width = parseFloat(window['getComputedStyle'](this, 0).width);
     var multiplier = (width - thumb.width) / range;
     if (!multiplier)
       return;
@@ -191,7 +196,7 @@ function transform(slider) {
   }
 
   function onDrag(e) {
-    var width = parseFloat(getComputedStyle(this, 0).width);
+    var width = parseFloat(window['getComputedStyle'](this, 0).width);
     var multiplier = (width - thumb.width) / range;
     if (!multiplier)
       return;
@@ -254,8 +259,11 @@ function transform(slider) {
       value = min + ~~(range / step) * step;
   }
 
-  // renders slider using CSS background ;)
+  /**
+  * @param {boolean=} attrsModified
+  */
   function draw(attrsModified) {
+    // renders slider using CSS background ;)
     calc();
     if (isChanged && value != prevValue)
       slider.dispatchEvent(onChange);
@@ -265,7 +273,7 @@ function transform(slider) {
     prevValue = value;
     var position = range ? (value - min) / range * 100 : 0;
     var bg = '-moz-element(#__sliderthumb__) ' + position + '% no-repeat, ';
-    style(slider, { background: bg + track });
+    style(slider, {"background": bg + track});
   }
 
 }
