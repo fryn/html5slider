@@ -124,16 +124,16 @@ function transform(slider) {
     draw();
     delete slider.value;
     slider.value = value;
-    Object.defineProperty(slider, "value", {
+    Object.defineProperty(slider, 'value', {
         get: getValue,
         set: setValue
     });
   };
-  Object.defineProperty(slider, "value", {
+  Object.defineProperty(slider, 'value', {
     get: getValue,
     set: setValue
   });
-  Object.defineProperty(slider, "type", {
+  Object.defineProperty(slider, 'type', {
     get: function() { return 'range'; }
   });
 
