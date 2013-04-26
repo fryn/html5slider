@@ -67,6 +67,8 @@ var options = {
   attributeFilter: ['min', 'max', 'step', 'value']
 };
 var forEach = Array.prototype.forEach;
+var onInput = document.createEvent('HTMLEvents');
+onInput.initEvent('input', true, false);
 var onChange = document.createEvent('HTMLEvents');
 onChange.initEvent('change', true, false);
 
@@ -208,6 +210,7 @@ function transform(slider) {
   function onDragEnd() {
     this.removeEventListener('mousemove', onDrag, true);
     this.removeEventListener('mouseup', onDragEnd, true);
+    slider.dispatchEvent(onChange);
   }
 
   function onKeyDown(e) {
@@ -262,7 +265,7 @@ function transform(slider) {
   function draw(attrsModified) {
     calc();
     if (isChanged && value != prevValue)
-      slider.dispatchEvent(onChange);
+      slider.dispatchEvent(onInput);
     isChanged = false;
     if (!attrsModified && value == prevValue)
       return;
