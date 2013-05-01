@@ -124,12 +124,6 @@ function transform(slider) {
     value = '' + val;
     isValueSet = true;
     draw();
-    delete slider.value;
-    slider.value = value;
-    Object.defineProperty(slider, 'value', {
-        get: getValue,
-        set: setValue
-    });
   };
   Object.defineProperty(slider, 'value', {
     get: getValue,
