@@ -139,7 +139,7 @@ function transform(slider) {
       areAttrsSet = true;
     Object.defineProperty(slider, prop, {
       get: function() { return this.hasAttribute(prop) ? this.getAttribute(prop) : ''; },
-      set: function(val) { val === null ? this.removeAttribute(prop) : this.setAttribute(prop, val); }
+      set: function(val) { val === null ? this.removeAttribute(prop) : this.setAttribute(prop, val);update(); }
     });
   });
 
