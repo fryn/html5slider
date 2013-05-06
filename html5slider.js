@@ -272,7 +272,7 @@ function transform(slider) {
   // renders slider using CSS background ;)
   function draw(attrsModified) {
     calc();
-    let wasUI = isUI;
+    var wasUI = isUI;
     isUI = false;
     if (wasUI && value != prevValue)
       slider.dispatchEvent(onInput);
