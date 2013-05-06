@@ -76,10 +76,14 @@ if (document.readyState == 'loading')
   document.addEventListener('DOMContentLoaded', initialize, true);
 else
   initialize();
+addEventListener('pagehide', function onUnload() {
+  removeEventListener('pagehide', onUnload, true);
+  addEventListener('pageshow', recreate, true);
+}, true);
 
 function initialize() {
   // create initial sliders
-  forEach.call(document.querySelectorAll('input[type=range]'), transform);
+  recreate();
   // create sliders on-the-fly
   new MutationObserver(function(mutations) {
     mutations.forEach(function(mutation) {
@@ -91,6 +95,10 @@ function initialize() {
         });
     });
   }).observe(document, { childList: true, subtree: true });
+}
+
+function recreate() {
+  forEach.call(document.querySelectorAll('input[type=range]'), transform);
 }
 
 function check(input) {
@@ -140,13 +148,8 @@ function transform(slider) {
     if (slider.hasAttribute(prop))
       areAttrsSet = true;
     Object.defineProperty(slider, prop, {
-      get: function() {
-        return this.hasAttribute(prop) ? this.getAttribute(prop) : '';
-      },
-      set: function(val) {
-        val === null ? this.removeAttribute(prop) : this.setAttribute(prop, val);
-        update();
-      }
+      get: function() { return this.hasAttribute(prop) ? this.getAttribute(prop) : ''; },
+      set: function(val) { val === null ? this.removeAttribute(prop) : this.setAttribute(prop, val); }
     });
   });
 
