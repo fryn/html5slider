@@ -106,7 +106,7 @@ function check(input) {
 
 function transform(slider) {
 
-  var isValueSet, areAttrsSet, isChanged, isClick, prevValue, rawValue, prevX;
+  var isValueSet, areAttrsSet, isUI, isClick, prevValue, rawValue, prevX;
   var min, max, step, range, value = slider.value;
 
   // lazily create shared slider affordance
@@ -185,7 +185,7 @@ function transform(slider) {
     setTimeout(function() { isClick = false; }, 0);
     if (e.button || !range)
       return;
-    var width = parseFloat(getComputedStyle(this, 0).width);
+    var width = parseFloat(getComputedStyle(this).width);
     var multiplier = (width - thumb.width) / range;
     if (!multiplier)
       return;
@@ -194,7 +194,7 @@ function transform(slider) {
               (value - min) * multiplier;
     // if click was not on thumb, move thumb to click location
     if (Math.abs(dev) > thumb.radius) {
-      isChanged = true;
+      isUI = true;
       this.value -= -dev / multiplier;
     }
     rawValue = value;
@@ -204,13 +204,13 @@ function transform(slider) {
   }
 
   function onDrag(e) {
-    var width = parseFloat(getComputedStyle(this, 0).width);
+    var width = parseFloat(getComputedStyle(this).width);
     var multiplier = (width - thumb.width) / range;
     if (!multiplier)
       return;
     rawValue += (e.clientX - prevX) / multiplier;
     prevX = e.clientX;
-    isChanged = true;
+    isUI = true;
     this.value = rawValue;
   }
 
@@ -224,7 +224,7 @@ function transform(slider) {
   function onKeyDown(e) {
     if (e.keyCode > 36 && e.keyCode < 41) { // 37-40: left, up, right, down
       onFocus.call(this);
-      isChanged = true;
+      isUI = true;
       this.value = value + (e.keyCode == 38 || e.keyCode == 39 ? step : -step);
     }
   }
@@ -272,9 +272,10 @@ function transform(slider) {
   // renders slider using CSS background ;)
   function draw(attrsModified) {
     calc();
-    if (isChanged && value != prevValue)
+    let wasUI = isUI;
+    isUI = false;
+    if (wasUI && value != prevValue)
       slider.dispatchEvent(onInput);
-    isChanged = false;
     if (!attrsModified && value == prevValue)
       return;
     prevValue = value;
