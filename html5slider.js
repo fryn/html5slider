@@ -124,12 +124,6 @@ function transform(slider) {
     value = '' + val;
     isValueSet = true;
     draw();
-    delete slider.value;
-    slider.value = value;
-    Object.defineProperty(slider, 'value', {
-        get: getValue,
-        set: setValue
-    });
   };
   Object.defineProperty(slider, 'value', {
     get: getValue,
@@ -145,7 +139,7 @@ function transform(slider) {
       areAttrsSet = true;
     Object.defineProperty(slider, prop, {
       get: function() { return this.hasAttribute(prop) ? this.getAttribute(prop) : ''; },
-      set: function(val) { val === null ? this.removeAttribute(prop) : this.setAttribute(prop, val); }
+      set: function(val) { val === null ? this.removeAttribute(prop) : this.setAttribute(prop, val);update(); }
     });
   });
 
