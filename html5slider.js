@@ -37,8 +37,7 @@ try {
 
 // test for required property support
 test.style.background = 'linear-gradient(red, red)';
-if (!test.style.backgroundImage || !('MozAppearance' in test.style) ||
-    !document.mozSetImageElement || !this.MutationObserver)
+if (!test.style.backgroundImage || !('MozAppearance' in test.style))
   return;
 
 var scale;
@@ -66,7 +65,6 @@ var options = {
   attributes: true,
   attributeFilter: ['min', 'max', 'step', 'value']
 };
-var forEach = Array.prototype.forEach;
 var onInput = document.createEvent('HTMLEvents');
 onInput.initEvent('input', true, false);
 var onChange = document.createEvent('HTMLEvents');
@@ -76,10 +74,7 @@ if (document.readyState == 'loading')
   document.addEventListener('DOMContentLoaded', initialize, true);
 else
   initialize();
-addEventListener('pagehide', function onUnload() {
-  removeEventListener('pagehide', onUnload, true);
-  addEventListener('pageshow', recreate, true);
-}, true);
+addEventListener('pageshow', recreate, true);
 
 function initialize() {
   // create initial sliders
@@ -88,22 +83,24 @@ function initialize() {
   new MutationObserver(function(mutations) {
     mutations.forEach(function(mutation) {
       if (mutation.addedNodes)
-        forEach.call(mutation.addedNodes, function(node) {
-          check(node);
-          if (node.childElementCount)
-            forEach.call(node.querySelectorAll('input'), check);
+        Array.forEach(mutation.addedNodes, function(node) {
+          if (!(node instanceof Element))
+            ;
+          else if (node.childElementCount)
+            forEach.call(node.querySelectorAll('input[type=range]'), check);
+          else if (node.mozMatchesSelector('input[type=range]'))
+            check(node);
         });
     });
   }).observe(document, { childList: true, subtree: true });
 }
 
 function recreate() {
-  forEach.call(document.querySelectorAll('input[type=range]'), transform);
+  Array.forEach(document.querySelectorAll('input[type=range]'), check);
 }
 
 function check(input) {
-  if (input.localName == 'input' && input.type != 'range' &&
-      input.getAttribute('type') == 'range')
+  if (input.type != 'range')
     transform(input);
 }
 
@@ -144,12 +141,18 @@ function transform(slider) {
   });
 
   // sync properties with attributes
-  ['min', 'max', 'step'].forEach(function(prop) {
-    if (slider.hasAttribute(prop))
+  ['min', 'max', 'step'].forEach(function(name) {
+    if (slider.hasAttribute(name))
       areAttrsSet = true;
-    Object.defineProperty(slider, prop, {
-      get: function() { return this.hasAttribute(prop) ? this.getAttribute(prop) : ''; },
-      set: function(val) { val === null ? this.removeAttribute(prop) : this.setAttribute(prop, val); }
+    Object.defineProperty(slider, name, {
+      get: function() {
+        return this.hasAttribute(name) ? this.getAttribute(name) : '';
+      },
+      set: function(val) {
+        val === null ?
+          this.removeAttribute(name) :
+          this.setAttribute(name, val);
+      }
     });
   });
 
