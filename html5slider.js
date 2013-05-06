@@ -124,11 +124,13 @@ function transform(slider) {
     value = '' + val;
     isValueSet = true;
     draw();
+    delete slider.value;
+    slider.value = value;
+    slider.__defineGetter__('value', getValue);
+    slider.__defineSetter__('value', setValue);
   };
-  Object.defineProperty(slider, 'value', {
-    get: getValue,
-    set: setValue
-  });
+  slider.__defineGetter__('value', getValue);
+  slider.__defineSetter__('value', setValue);
   Object.defineProperty(slider, 'type', {
     get: function() { return 'range'; }
   });
@@ -138,8 +140,13 @@ function transform(slider) {
     if (slider.hasAttribute(prop))
       areAttrsSet = true;
     Object.defineProperty(slider, prop, {
-      get: function() { return this.hasAttribute(prop) ? this.getAttribute(prop) : ''; },
-      set: function(val) { val === null ? this.removeAttribute(prop) : this.setAttribute(prop, val);update(); }
+      get: function() {
+        return this.hasAttribute(prop) ? this.getAttribute(prop) : '';
+      },
+      set: function(val) {
+        val === null ? this.removeAttribute(prop) : this.setAttribute(prop, val);
+        update();
+      }
     });
   });
 
@@ -204,6 +211,7 @@ function transform(slider) {
   function onDragEnd() {
     this.removeEventListener('mousemove', onDrag, true);
     this.removeEventListener('mouseup', onDragEnd, true);
+    slider.dispatchEvent(onInput);
     slider.dispatchEvent(onChange);
   }
 
