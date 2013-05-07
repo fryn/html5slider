@@ -5,7 +5,7 @@
 html5slider is a polyfill that:
 * transforms all `<input type=range>` elements from plain textboxes to draggable sliders on-the-fly automatically,
 * supports `min`, `max`, `step`, `oninput`, and `onchange`,
-* and is the only polyfill that provides **native styling** for the slider widgets,
+* and is the only polyfill that provides **native styling** for the slider widgets.
 
 Try out a [live demo](http://frankyan.com/labs/html5slider/)!
 
