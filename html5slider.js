@@ -87,7 +87,7 @@ function initialize() {
           if (!(node instanceof Element))
             ;
           else if (node.childElementCount)
-            forEach.call(node.querySelectorAll('input[type=range]'), check);
+            Array.forEach(node.querySelectorAll('input[type=range]'), check);
           else if (node.mozMatchesSelector('input[type=range]'))
             check(node);
         });
