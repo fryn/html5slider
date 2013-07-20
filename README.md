@@ -7,7 +7,7 @@ html5slider is a polyfill that:
 * supports `min`, `max`, `step`, `oninput`, and `onchange`,
 * and is the only polyfill that provides **native styling** for the slider widgets.
 
-Try out a [live demo](http://frankyan.com/labs/html5slider/)!
+Try out a [live demo](http://fryn.github.io/html5slider/)!
 
 To use html5slider, simply reference html5slider.js in your page as an external script. For example:
 `<script src="html5slider.js"></script>`
