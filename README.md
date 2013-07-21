@@ -1,6 +1,6 @@
 ## html5slider
 
-#### a JavaScript implementation of HTML5 `<input type=range>` for Firefox 16 and up
+#### a JavaScript implementation of HTML5 `<input type=range>` for Firefox
 
 html5slider is a polyfill that:
 * transforms all `<input type=range>` elements from plain textboxes to draggable sliders on-the-fly automatically,
