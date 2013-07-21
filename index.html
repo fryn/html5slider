@@ -26,9 +26,8 @@ a {
   height: 149px;
   outline: none;
   image-rendering: -moz-crisp-edges;
-  transition: .2s;
-  -moz-transition: .2s;
   -webkit-transition: .2s;
+  transition: .2s;
 }
 #github {
   background-image: url(https://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png);
@@ -40,20 +39,6 @@ a {
   opacity: 0;
 }
 </style>
-<script src="html5slider.js"></script>
-<script>
-onload = function() {
-  var $ = function(id) { return document.getElementById(id); };
-  $('one').oninput = function() { $('uno').innerHTML = this.value; };
-  $('one').oninput();
-  $('two').oninput = function() { $('dos').innerHTML = this.value; };
-  $('two').oninput();
-  $('mms').innerHTML =
-    ['min: ' + $('two').min,
-     'max: ' + $('two').max,
-     'step: ' + $('two').step].join(', ');
-};
-</script>
 </head>
 <body>
 <h3>html5slider</h3>
@@ -70,5 +55,17 @@ onload = function() {
 &mdash;
 <a href="http://frankyan.com/">frankyan.com</a>
 <a href="https://github.com/fryn/html5slider" id="github"></a>
+<script src="html5slider.js"></script>
+<script>
+function $(id) { return document.getElementById(id); };
+$('one').oninput = function() { $('uno').innerHTML = this.value; };
+$('one').oninput();
+$('two').oninput = function() { $('dos').innerHTML = this.value; };
+$('two').oninput();
+$('mms').innerHTML =
+  ['min: ' + $('two').min,
+   'max: ' + $('two').max,
+   'step: ' + $('two').step].join(', ');
+</script>
 </body>
 </html>
