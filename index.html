@@ -39,6 +39,20 @@ a {
   opacity: 0;
 }
 </style>
+<script src="html5slider.js"></script>
+<script>
+function $(id) { return document.getElementById(id); };
+onload = function() {
+  $('one').oninput = function() { $('uno').innerHTML = this.value; };
+  $('one').oninput();
+  $('two').oninput = function() { $('dos').innerHTML = this.value; };
+  $('two').oninput();
+  $('mms').innerHTML =
+    ['min: ' + $('two').min,
+     'max: ' + $('two').max,
+     'step: ' + $('two').step].join(', ');
+};
+</script>
 </head>
 <body>
 <h3>html5slider</h3>
@@ -55,17 +69,5 @@ a {
 &mdash;
 <a href="http://frankyan.com/">frankyan.com</a>
 <a href="https://github.com/fryn/html5slider" id="github"></a>
-<script src="html5slider.js"></script>
-<script>
-function $(id) { return document.getElementById(id); };
-$('one').oninput = function() { $('uno').innerHTML = this.value; };
-$('one').oninput();
-$('two').oninput = function() { $('dos').innerHTML = this.value; };
-$('two').oninput();
-$('mms').innerHTML =
-  ['min: ' + $('two').min,
-   'max: ' + $('two').max,
-   'step: ' + $('two').step].join(', ');
-</script>
 </body>
 </html>
