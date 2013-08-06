@@ -7,6 +7,8 @@ html5slider is a polyfill that:
 * supports `min`, `max`, `step`, `oninput`, and `onchange`,
 * and is the only polyfill that provides **native styling** for the slider widgets.
 
+**Firefox 23 added built-in support for this widget, so this polyfill only applies to Firefox 16 - 22.**
+
 Try out a [live demo](http://fryn.github.io/html5slider/)!
 
 To use html5slider, simply reference html5slider.js in your page as an external script. For example:
